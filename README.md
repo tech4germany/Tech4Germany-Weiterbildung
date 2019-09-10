@@ -10,3 +10,8 @@
   - local server: [Link to Postgress App](https://postgresapp.com)
   - pgadmin for mac: [Link to PGAdmin Mac](https://www.postgresql.org/ftp/pgadmin/pgadmin4/v4.12/macos/)
 - "KI": Keras, sklearn
+
+## Usage
+
+- Install requirements with `pip install -r requirements.txt`
+- Run server: `python app.py`
