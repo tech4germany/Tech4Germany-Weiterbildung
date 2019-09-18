@@ -17,11 +17,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-_renderTodos(){
-    return this.state.todos.map(el => {
-        return <ListItem primaryText={el.text} key={el.id}/>
-    })
-}
+
 
 function Row(props) {
     const { index, style } = props;
