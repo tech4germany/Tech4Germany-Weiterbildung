@@ -11,7 +11,7 @@ class CourseList extends React.Component {
     }
 
     componentDidMount() {
-        fetch("http://bmas-backend-5.gn38mxa6rg.us-east-2.elasticbeanstalk.com/courses", {mode: 'cors'})
+        fetch("http://bmas-backend-5.gn38mxa6rg.us-east-2.elasticbeanstalk.com/courses")
             .then(res => res.json())
             .then(
                 (result) => {

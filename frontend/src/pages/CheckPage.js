@@ -8,6 +8,7 @@ import FormLabel from '@material-ui/core/FormLabel';
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import {Link} from "react-router-dom";
+import CardPage from "./CardPage";
 
 const useStyles = makeStyles(theme => ({
     formControl: {
@@ -15,7 +16,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default function RadioButtonsGroup() {
+const CheckPage = props => {
     const classes = useStyles();
     const [value, setValue] = React.useState('female');
 
@@ -35,7 +36,7 @@ export default function RadioButtonsGroup() {
                         <FormControlLabel value="wechseln" control={<Radio />} label="Ich möchte in eine andere Branche wechseln." />
                         <FormControlLabel value="spezialisieren" control={<Radio />} label="Ich möchte mich in meiner Branche spezialisieren." />
                     </RadioGroup>
-                    <Link to="/list"><Button variant="contained" color="primary" className={classes.button}>
+                    <Link to="/list"><Button variant="contained" color="primary" className={classes.button} onClick={() => props.option_handler(value)}>
                         Weiter
                     </Button></Link>
                 </FormControl>
@@ -43,3 +44,5 @@ export default function RadioButtonsGroup() {
         </Grid>
     );
 }
+
+export default CheckPage;

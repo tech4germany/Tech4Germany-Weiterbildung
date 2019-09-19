@@ -55,7 +55,7 @@ const JobCard = props => {
                 </Typography>
             </CardContent>
             <CardActions style={{justifyContent: 'center'}}>
-                <Link to="/check"><Button variant="contained" color="primary" className={classes.button} onClick={() => props.option_handler(3)}>
+                <Link to="/check"><Button variant="contained" color="primary" className={classes.button} onClick={() => props.option_handler(props.title)}>
                 Auswählen
                 </Button></Link>
         </CardActions>
