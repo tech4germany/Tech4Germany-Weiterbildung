@@ -1,18 +1,29 @@
+import csv
 import json
+import os
 from pymongo import MongoClient
+
+def import_files(collection, folder):
+    files = os.listdir(folder)
+    csv_files = [input_file for input_file in files if input_file.endswith('_data.csv')]
+    for csv_file in csv_files:
+        with open(os.path.join(folder, csv_file), 'r') as csvfile:
+            course_reader = csv.reader(csvfile, delimiter=',')
+            for row in course_reader:
+                print(row)
+                if len(row) > 1:
+                    title = row[0]
+                    course_id = row[1]
+                    parent_1 = row[2].replace('+', ' ')
+                    parent_2 = row[3].replace('+', ' ')
+                    collection.insert_one({'title': title, 'parent_1': parent_1, 'parent_2': parent_2})
+                    break
 
 def main():
     connection_string = "mongodb+srv://t4g:bmas@cluster0-4lru4.mongodb.net/test"
     mongo_client = MongoClient(connection_string)
     t4g_database = mongo_client.t4g
-    json_data = mongo_db_collection_to_json(t4g_database, 'courses')
-    print(json_data)
-
-def mongo_db_collection_to_json(db, collection):
-    courses_collection = db[collection].find({})
-    data = list()
-    for cursor in courses_collection:
-        data.append(cursor)
-    return data
+    courses_collection = t4g_database.courses
+    import_files(courses_collection, '../scraping/output/')
 
 main()
