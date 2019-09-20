@@ -36,7 +36,7 @@ const CheckPage = props => {
                         <FormControlLabel value="wechseln" control={<Radio />} label="Ich möchte in eine andere Branche wechseln." />
                         <FormControlLabel value="spezialisieren" control={<Radio />} label="Ich möchte mich in meiner Branche spezialisieren." />
                     </RadioGroup>
-                    <Link to="/list"><Button variant="contained" color="primary" className={classes.button} onClick={() => props.option_handler(value)}>
+                    <Link to="/jobs"><Button variant="contained" color="primary" className={classes.button} onClick={() => props.option_handler(value)}>
                         Weiter
                     </Button></Link>
                 </FormControl>
