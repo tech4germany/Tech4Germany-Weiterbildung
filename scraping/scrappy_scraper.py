@@ -137,7 +137,7 @@ def export_course(course, data):
         data['Inhalte'] = []
         div = content.find('h1', text='Inhalte').find_next_sibling('div', class_='section')
         data['Inhalte'].append({
-            'text': div
+            'text': str(div)
         })
         for a in div.find_all('a', target='_blank'):
             data['Inhalte'].append({
@@ -190,7 +190,7 @@ def export_course(course, data):
 
     #print(data)
 
-    s3.Object(BUCKET_NAME, f'data/{course_id}_data.txt').put(Body=json.dumps(data))
+    s3.Object(BUCKET_NAME, f"data/{next(iter(data['parents'][0]))}/{course}_data.txt").put(Body=json.dumps(data))
     
 
 def main():
