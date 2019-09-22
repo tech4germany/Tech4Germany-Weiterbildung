@@ -2,8 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import lxml
 import re
-from tqdm import tqdm as tqdm
 import boto3
+import json
 
 # for pickle
 import sys
@@ -66,7 +66,16 @@ def export_course(course):
     course_id = course[-1]
     parent_1 = course[-2]
     parent_2 = course[-3] if len(course) > 2 else ""
-    s3.Object(BUCKET_NAME, f'data/{course_id}_data.csv').put(Body=f'{title}, {course_id}, {parent_1}, {parent_2}, {content}')
+
+    data = {}
+    data['meta'] = []
+
+    data['meta'].append({
+            'title': course_id,
+            'parent_1': parent_1
+        })
+
+    s3.Object(BUCKET_NAME, f'data/{course_id}_data.txt').put(Body=json.dumps(data))
     
 
 def main():
