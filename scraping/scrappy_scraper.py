@@ -82,8 +82,6 @@ def export_course(course, data):
         data['meta']['id'] = course
         data['meta']['title'] = title
 
-        print(data['meta'])
-
         if any(content.find_all('a', href=re.compile('.*berufenet.arbeitsagentur.de/berufe.*'))):
             data['professions'] = []
             for job in content.find_all('a', href=re.compile('.*berufenet.arbeitsagentur.de/berufe.*')):
@@ -155,9 +153,11 @@ def export_course(course, data):
                     data['Anbieterbewertung']['Teilnehmerrückmeldungen'] = 'Datenlage nicht ausreichend'
 
         s3.Object(BUCKET_NAME, f"data/new_json/{course}_data.txt").put(Body=json.dumps(data))
+
+    except KeyboardInterrupt:
+        raise
     except:
         print(f'error at {course}')
-    #print(data)
 
 def main():
     global i
