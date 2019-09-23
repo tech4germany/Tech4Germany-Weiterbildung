@@ -57,16 +57,12 @@ def get_courses_list(layer, data):
     Arguments:
         layer {[type]} -- [description]
     """
-    layer_data = data
-    course_data = data
 
     url = f'https://kursnet-finden.arbeitsagentur.de/kurs/kursDetail.do?seite=1&sn={layer}&doNext=detail&anzahlSeite=5000000'
     req = requests.get(url)
     soup = BeautifulSoup(req.content, 'lxml')
     for row in soup.find_all('a', title='Veranstaltungsdetail'):
-        course_data = data
-        export_course(row['href'].split('vg_id=')[1].split('&anzahl')[0], course_data)
-        course_data = None
+        export_course(row['href'].split('vg_id=')[1].split('&anzahl')[0], data)
 
 
 def export_course(course, data):
@@ -190,8 +186,9 @@ def export_course(course, data):
                     'Teilnehmerrückmeldungen': 'Datenlage nicht ausreichend'
                 })
 
+    print(data['parents'])
 
-    s3.Object(BUCKET_NAME, f"data/{next(iter(data['parents'][0]))}/{course}_data.txt").put(Body=json.dumps(data))
+    #s3.Object(BUCKET_NAME, f"data/{next(iter(data['parents'][0]))}/{course}_data.txt").put(Body=json.dumps(data))
     
 
 def main():
