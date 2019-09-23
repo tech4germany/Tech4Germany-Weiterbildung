@@ -4,9 +4,8 @@ import lxml
 import re
 import boto3
 import json
+import sys
 
-BUCKET_NAME = 't4g-2019-bmas-kursnet-data'
-s3 = boto3.resource('s3')
 
 def crawl(targets, data=None):
     """Crawls and exports all courses under the given target from KursNet
@@ -160,11 +159,16 @@ def export_course(course, data):
         print(f'error at {course}')
 
 def main():
+
+    BUCKET_NAME = 't4g-2019-bmas-kursnet-data'
+    s3 = boto3.resource('s3')
+
     global i
     i = 0
 
-    targets = ['B', 'C', 'D']
-    crawl(targets)
+    targets = [str(sys.argv[1])] if len(sys.argv) > 1 else ['B', 'C', 'D']
+    print(targets)
+    #crawl(targets)
 
 if __name__ == "__main__":
     main()
