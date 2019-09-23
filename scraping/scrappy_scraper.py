@@ -67,6 +67,7 @@ def export_course(course, data):
     url = 'https://kursnet-finden.arbeitsagentur.de/kurs/veranstaltungsDetail.do?seite=1&anzahlSeite=5000000&doNext=vgdetail&vg_id='
     
     try:
+        
         req = requests.get(url + course)
         soup = BeautifulSoup(req.content, 'lxml')
         content = soup.find('div', id='inhalt')
@@ -160,9 +161,6 @@ def export_course(course, data):
 
 def main():
 
-    BUCKET_NAME = 't4g-2019-bmas-kursnet-data'
-    s3 = boto3.resource('s3')
-
     global i
     i = 0
 
@@ -171,4 +169,7 @@ def main():
     crawl(targets)
 
 if __name__ == "__main__":
+    BUCKET_NAME = 't4g-2019-bmas-kursnet-data'
+    s3 = boto3.resource('s3')
+
     main()
