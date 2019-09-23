@@ -5,13 +5,7 @@ import re
 import boto3
 import json
 
-# for pickle
-import sys
-sys.setrecursionlimit(50000)
-
-last_layers = []
 BUCKET_NAME = 't4g-2019-bmas-kursnet-data'
-
 s3 = boto3.resource('s3')
 
 def crawl(targets, data=None):
@@ -34,11 +28,11 @@ def crawl(targets, data=None):
 
         if not data:
             data = {}
-            data['parents'] = [{
-                item: label
-            }]
+            data['parents'] = {}
+            data['meta'] = {}
+            data['parents'][item] = label
         else:
-            data['parents'][0][item] = label
+            data['parents'][item] = label
         
         table = soup.find('table', id='systematiksuche_tabelle')
         if not table.find('a', id=re.compile('syNr_[0-9]*')):
@@ -48,7 +42,7 @@ def crawl(targets, data=None):
                 crawl([row.text.replace(' ', '+')], data)
 
         # move one layer up
-        del data['parents'][0][item]
+        del data['parents'][item]
 
 
 def get_courses_list(layer, data):
@@ -81,14 +75,13 @@ def export_course(course, data):
     global i
     i += 1
 
-    print(i, course, next(iter(data['parents'][0])))
+    print(i, course, next(iter(data['parents'])))
 
     # data = {}
-    data['meta'] = []
-    data['meta'].append({
-            'id': course,
-            'title': title
-        })
+    data['meta']['id'] = course
+    data['meta']['title'] = title
+
+    print(data['meta'])
 
     if any(content.find_all('a', href=re.compile('.*berufenet.arbeitsagentur.de/berufe.*'))):
         data['professions'] = []
@@ -101,93 +94,67 @@ def export_course(course, data):
     sections = ['Veranstaltungsinformationen', 'Veranstaltungsort', 'Kosten/Gebühren/Förderung', 'Dauer und Termine', 'Bildungsanbieter', 'Sonstiges', 'Zugang', 'Veröffentlichungsinformationen']
     for section in sections:
         if content.find('h1', text=section):
-            data[section] = []
+            data[section] = {}
             div = content.find('h1', text=section).find_next_sibling('div', class_='section')#.find('table')
             if div.find('td', text='Es ist kein Veranstaltungsort zugewiesen'):
-                data[section].append({
-                    'meta': 'Es ist kein Veranstaltungsort zugewiesen'
-                })
+                data[section]['meta'] = 'Es ist kein Veranstaltungsort zugewiesen'
             else:
                 for row in div.find_all('tr'):
                     if len(row.find_all('td')) == 2:
-                        data[section].append({
-                            row.find('td').text.strip(): row.find('td').find_next_sibling('td').text.strip()
-                        })
+                        data[section][row.find('td').text.strip()] = row.find('td').find_next_sibling('td').text.strip()
+
                     # adresses (without label)
                     elif len(row.find_all('td')) == 1:
                         # special case 'Postfach' without id
                         if row.find('td', text=re.compile('Postfach.*')):
-                            data[section].append({
-                                'Postfach': row.find('td').text.strip()
-                            })
+                            data[section]['Postfach'] = row.find('td').text.strip()
                         else:
-                            data[section].append({
-                                row.find('td')['id']: row.find('td').text.strip()
-                            })
+                            data[section][row.find('td')['id']] = row.find('td').text.strip()
                     # Veröffentlichungsinformationen
                     elif len(row.find_all('td')) == 3:
-                        data[section].append({
-                            'Aktualisiert': row.find_all('td')[0].text.split('am: ')[1],
-                            'Bildungsanbieter-ID': row.find_all('td')[2].text.split('ID: ')[1]
-                        })
+                        data[section]['Aktualisiert'] = row.find_all('td')[0].text.split('am: ')[1]
+                        data[section]['Bildungsanbieter-ID'] = row.find_all('td')[2].text.split('ID: ')[1]
 
     # inhalte
     if content.find('h1', text='Inhalte'):
-        data['Inhalte'] = []
+        data['Inhalte'] = {}
         div = content.find('h1', text='Inhalte').find_next_sibling('div', class_='section')
-        data['Inhalte'].append({
-            'text': str(div)
-        })
+        data['Inhalte']['text'] = str(div)
         for a in div.find_all('a', target='_blank'):
-            data['Inhalte'].append({
-                a.text.strip() : a['href']
-            })
+            data['Inhalte'][a.text.strip()] = a['href']
                     
     # rating - Anbieterbewertung
     # besser checken, if data vorhanden ist
     if content.find('h1', text='Anbieterbewertung'):
-        data['Anbieterbewertung'] = []
+        data['Anbieterbewertung'] = {}
         div = content.find('h1', text='Anbieterbewertung').find_next_sibling('div', class_='section')
         if len(div.find_all('td')) == 1:
-            data['Anbieterbewertung'].append({
-                'meta': 'Datenlage nicht ausreichend'
-            })
+            data['Anbieterbewertung']['meta'] = 'Datenlage nicht ausreichend'
         else:
             # check if 'integration in arbeit' exists
             if div.find('td', class_='int-in-arbeit hasdata'):
                 score = div.find('td', class_='int-in-arbeit hasdata').find_next_sibling('td').find('div').text
-                data['Anbieterbewertung'].append({
-                    'Integration in Arbeit_score': score.split(' Punkte')[0].replace(',', '.'),
-                    'Integration in Arbeit_n_votes': score.split('(')[1].split(' Teilnehmende')[0]
-                })
-            
+                data['Anbieterbewertung']['Integration in Arbeit_score'] = score.split(' Punkte')[0].replace(',', '.')
+                data['Anbieterbewertung']['Integration in Arbeit_n_votes'] = score.split('(')[1].split(' Teilnehmende')[0]
             else:
-                data['Anbieterbewertung'].append({
-                    'Integration in Arbeit': 'Datenlage nicht ausreichend'
-                })
-                
+                data['Anbieterbewertung']['Integration in Arbeit'] = 'Datenlage nicht ausreichend'
+
             # check if 'Teilnehmerrückmeldungen' exists
             if div.find_all('tr')[2].find_all('span', text=re.compile('.*Sternewert.*')):
                 score = div.find_all('tr')[2].find_all('td')[2].text
-                data['Anbieterbewertung'].append({
-                    'Teilnehmerrückmeldung_score': score.split('Es wurden ')[1].split(' Sterne von möglichen')[0].replace(',', '.'),
-                    'Teilnehmerrückmeldung_teilnehmende': score.split('von')[2].split('Teilnehm')[0].strip(),
-                    'Teilnehmerrückmeldung_rückmeldungen': score.split('(')[1].split(' Rückmeldungen')[0]
-                })
+                data['Anbieterbewertung']['Teilnehmerrückmeldung_score'] = score.split('Es wurden ')[1].split(' Sterne von möglichen')[0].replace(',', '.')
+                data['Anbieterbewertung']['Teilnehmerrückmeldung_teilnehmende'] = score.split('von')[2].split('Teilnehm')[0].strip()
+                data['Anbieterbewertung']['Teilnehmerrückmeldung_rückmeldungen'] = score.split('(')[1].split(' Rückmeldungen')[0]
                 
                 # check if details exist
                 if div.find_all('div', class_='_sternedetails_'):
                     for row in div.find('div', class_='_sternedetails_').find_all('tr', class_='popupbottomborder __item_')[1:]:
-                        data['Anbieterbewertung'].append({
-                           f"sternedetails_{row.find('td', class_='__frage_').text}": row.find('td', class_='__bewertung_').text.split('Sternewert')[1].split('von')[0].strip().replace(',', '.') 
-                        })
+                        data['Anbieterbewertung'][f"sternedetails_{row.find('td', class_='__frage_').text}"] = row.find('td', class_='__bewertung_').text.split('Sternewert')[1].split('von')[0].strip().replace(',', '.') 
             else:
-                data['Anbieterbewertung'].append({
-                    'Teilnehmerrückmeldungen': 'Datenlage nicht ausreichend'
-                })
+                data['Anbieterbewertung']['Teilnehmerrückmeldungen'] = 'Datenlage nicht ausreichend'
 
-    s3.Object(BUCKET_NAME, f"data/{next(iter(data['parents'][0]))}/{course}_data.txt").put(Body=json.dumps(data))
-    
+    s3.Object(BUCKET_NAME, f"data/new_json/{course}_data.txt").put(Body=json.dumps(data))
+    #print(data)
 
 def main():
     global i
