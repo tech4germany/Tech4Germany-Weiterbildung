@@ -186,9 +186,7 @@ def export_course(course, data):
                     'Teilnehmerrückmeldungen': 'Datenlage nicht ausreichend'
                 })
 
-    print(data['parents'])
-
-    #s3.Object(BUCKET_NAME, f"data/{next(iter(data['parents'][0]))}/{course}_data.txt").put(Body=json.dumps(data))
+    s3.Object(BUCKET_NAME, f"data/{next(iter(data['parents'][0]))}/{course}_data.txt").put(Body=json.dumps(data))
     
 
 def main():
