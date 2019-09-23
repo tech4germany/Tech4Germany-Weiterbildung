@@ -38,7 +38,10 @@ def crawl(targets, data=None):
             get_courses_list(item, data)
         else:
             for row in table.find_all('a', id=re.compile('syNr_[0-9]*')):
-                crawl([row.text.replace(' ', '+')], data)
+                try:
+                    crawl([row.text.replace(' ', '+')], data)
+                except:
+                    continue
 
         # move one layer up
         del data['parents'][item]
