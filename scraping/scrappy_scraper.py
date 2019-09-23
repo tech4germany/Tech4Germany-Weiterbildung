@@ -117,7 +117,7 @@ def export_course(course, data):
         if content.find('h1', text='Inhalte'):
             data['Inhalte'] = {}
             div = content.find('h1', text='Inhalte').find_next_sibling('div', class_='section')
-            data['Inhalte']['text'] = str(div)
+            data['Inhalte']['text'] = div.text
             for a in div.find_all('a', target='_blank'):
                 data['Inhalte'][a.text.strip()] = a['href']
                         
@@ -151,7 +151,7 @@ def export_course(course, data):
                 else:
                     data['Anbieterbewertung']['Teilnehmerrückmeldungen'] = 'Datenlage nicht ausreichend'
 
-        s3.Object(BUCKET_NAME, f"data/new_json/{course}_data.txt").put(Body=json.dumps(data))
+        s3.Object(BUCKET_NAME, f"data/{next(iter(data['parents']))}/{course}_data.txt").put(Body=json.dumps(data))
 
     except KeyboardInterrupt:
         raise
@@ -166,9 +166,9 @@ def main():
     global i
     i = 0
 
+    # use input if available
     targets = [str(sys.argv[1])] if len(sys.argv) > 1 else ['B', 'C', 'D']
-    print(targets)
-    #crawl(targets)
+    crawl(targets)
 
 if __name__ == "__main__":
     main()
