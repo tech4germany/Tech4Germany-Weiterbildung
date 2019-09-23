@@ -82,7 +82,10 @@ def export_course(course, data):
     content = soup.find('div', id='inhalt')
     title = content.find('h2', id='Titel').text
 
-    print(course)
+    global i
+    i += 1
+
+    print(i, course, next(iter(data['parents'][0])))
 
     # data = {}
     data['meta'] = []
@@ -188,12 +191,12 @@ def export_course(course, data):
                 })
 
 
-    #print(data)
-
     s3.Object(BUCKET_NAME, f"data/{next(iter(data['parents'][0]))}/{course}_data.txt").put(Body=json.dumps(data))
     
 
 def main():
+    global i
+    i = 0
 
     targets = ['B', 'C', 'D']
     crawl(targets)
