@@ -9,6 +9,7 @@ import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import {Link} from "react-router-dom";
 import CardPage from "./CardPage";
+import Header from "../modals/Header";
 
 const useStyles = makeStyles(theme => ({
     formControl: {
@@ -28,7 +29,8 @@ const CheckPage = props => {
         <Grid container spacing={3}
               justify="center"
               alignItems="center">
-            <div>
+            <Header/>
+            <Grid item xs={12}>
                 <FormControl component="fieldset" className={classes.formControl}>
                     <FormLabel component="legend">Was trifft am ehesten auf dich zu?</FormLabel>
                     <RadioGroup aria-label="goal" name="goal" value={value} onChange={handleChange}>
@@ -40,7 +42,7 @@ const CheckPage = props => {
                         Weiter
                     </Button></Link>
                 </FormControl>
-            </div>
+            </Grid>
         </Grid>
     );
 }

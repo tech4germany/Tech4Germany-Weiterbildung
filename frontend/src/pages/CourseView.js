@@ -2,6 +2,8 @@ import React from "react";
 import {Link} from "react-router-dom";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Container from "@material-ui/core/Container";
+import Header from "../modals/Header";
+import Grid from "@material-ui/core/Grid";
 
 class CourseView extends React.Component {
     constructor(props) {
@@ -43,11 +45,16 @@ class CourseView extends React.Component {
             return <Container><CircularProgress/></Container>
         } else {
             return (
-                <Container>
-                    <p>Course Title: {items.title}</p>
-                    <p>Course parent 1: {items.parent_1}</p>
-                    <p>Course parent 2: {items.parent_2}</p>
-                </Container>
+                <Grid container spacing={3}
+                      justify="center"
+                      alignItems="center">
+                    <Header/>
+                    <Grid item xs={12}>
+                        <p>Course Title: {items.title}</p>
+                        <p>Course parent 1: {items.parent_1}</p>
+                        <p>Course parent 2: {items.parent_2}</p>
+                    </Grid>
+                </Grid>
             );
         }
     }

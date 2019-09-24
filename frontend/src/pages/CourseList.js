@@ -2,6 +2,8 @@ import React from "react";
 import {Link} from "react-router-dom";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Container from "@material-ui/core/Container";
+import Header from "../modals/Header";
+import Grid from "@material-ui/core/Grid";
 
 class CourseList extends React.Component {
     constructor(props) {
@@ -43,11 +45,18 @@ class CourseList extends React.Component {
             return <Container><CircularProgress/></Container>
         } else {
             return (
-                <ul>
-                    {items.map(course => {
-                        return <Link to={"/course/"} onClick={() => this.props.course_handler(course._id.$oid)}><li key={course._id.$oid}>{course.title}</li></Link>
-                    })}
-                </ul>
+                <Grid container spacing={3}
+                      justify="center"
+                      alignItems="center">
+                    <Header/>
+                    <Grid item xs={12}>
+                        <ul>
+                            {items.map(course => {
+                                return <Link to={"/course/"} onClick={() => this.props.course_handler(course._id.$oid)}><li key={course._id.$oid}>{course.title}</li></Link>
+                            })}
+                        </ul>
+                    </Grid>
+                </Grid>
             );
         }
     }
