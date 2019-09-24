@@ -149,7 +149,6 @@ def export_course(course, data):
                     data['Anbieterbewertung']['Teilnehmerrückmeldungen'] = 'Datenlage nicht ausreichend'
 
         s3.Object(BUCKET_NAME, f"data/parallel_C/{INSTANCE_NAME}/{course}_data.txt").put(Body=json.dumps(data))
-        print(data['parents'])
 
     except KeyboardInterrupt:
         raise
@@ -174,6 +173,6 @@ def main():
 if __name__ == "__main__":
     BUCKET_NAME = 't4g-2019-bmas-kursnet-data'
     s3 = boto3.resource('s3')
-    INSTANCE_NAME = 'local'
+    INSTANCE_NAME = str(sys.argv[2])
 
     main()
