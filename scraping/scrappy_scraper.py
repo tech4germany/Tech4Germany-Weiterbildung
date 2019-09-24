@@ -27,24 +27,17 @@ def crawl(targets, data=None):
 
         if not data:
             data = {}
-            data['parents'] = {}
             data['meta'] = {}
-            data['parents'][item] = label
-        else:
-            data['parents'][item] = label
         
         table = soup.find('table', id='systematiksuche_tabelle')
         if not table.find('a', id=re.compile('syNr_[0-9]*')):
+            data['parents'] = {}
+            for parent in soup.find('table', id='systematiksuche_breadcrumb').find_all('tr')[1:]:
+                data['parents'][parent.find_all('td')[0].text.strip().replace(' ', '+')] = parent.find_all('td')[1].text.strip()
             get_courses_list(item, data)
         else:
             for row in table.find_all('a', id=re.compile('syNr_[0-9]*')):
-                try:
-                    crawl([row.text.replace(' ', '+')], data)
-                except:
-                    continue
-
-        # move one layer up
-        del data['parents'][item]
+                crawl([row.text.replace(' ', '+')], data)
 
 
 def get_courses_list(layer, data):
@@ -155,13 +148,14 @@ def export_course(course, data):
                 else:
                     data['Anbieterbewertung']['Teilnehmerrückmeldungen'] = 'Datenlage nicht ausreichend'
 
-        s3.Object(BUCKET_NAME, f"data/parallel_c/{INSTANCE_NAME}/{course}_data.txt").put(Body=json.dumps(data))
+        s3.Object(BUCKET_NAME, f"data/parallel_C/{INSTANCE_NAME}/{course}_data.txt").put(Body=json.dumps(data))
+        print(data['parents'])
 
     except KeyboardInterrupt:
         raise
     except:
         print(f'error at {course}')
-        s3.Object(BUCKET_NAME, f"data/parallel_c/error_logs/instance_{INSTANCE_NAME}_last_error.txt").put(Body=f"Error at {i, course, next(iter(data['parents']))}")
+        s3.Object(BUCKET_NAME, f"data/parallel_C/error_logs/instance_{INSTANCE_NAME}_last_error.txt").put(Body=f"Error at {i, course, next(iter(data['parents']))}")
 
 
 def main():
@@ -170,11 +164,12 @@ def main():
     i = 0
 
     # use input if available
-    targets = [str(sys.argv[1])] if len(sys.argv) > 1 else ['B', 'C', 'D']
+    targets = list(sys.argv[1].split(',')) if len(sys.argv) > 1 else ['B', 'C', 'D']
+
     crawl(targets)
 
     print('I am Done!')
-    s3.Object(BUCKET_NAME, f"data/parallel_c/done_logs/instance_{INSTANCE_NAME}.txt").put(Body=f"I am Done! (with {i} courses!)")
+    s3.Object(BUCKET_NAME, f"data/parallel_C/done_logs/instance_{INSTANCE_NAME}.txt").put(Body=f"I am Done! (with {i} courses!)")
 
 if __name__ == "__main__":
     BUCKET_NAME = 't4g-2019-bmas-kursnet-data'
