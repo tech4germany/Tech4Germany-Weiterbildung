@@ -152,12 +152,14 @@ def export_course(course, data):
                 else:
                     data['Anbieterbewertung']['Teilnehmerrückmeldungen'] = 'Datenlage nicht ausreichend'
 
-        s3.Object(BUCKET_NAME, f"data/{next(iter(data['parents']))}/{course}_data.txt").put(Body=json.dumps(data))
+        s3.Object(BUCKET_NAME, f"data/parallel_c/{INSTANCE_NAME}/{course}_data.txt").put(Body=json.dumps(data))
 
     except KeyboardInterrupt:
         raise
     except:
         print(f'error at {course}')
+        s3.Object(BUCKET_NAME, f"data/parallel_c/error_logs/instance_{INSTANCE_NAME}_last_error.txt").put(Body=f"Error at {i, course, next(iter(data['parents']))}")
+
 
 def main():
 
@@ -168,8 +170,12 @@ def main():
     targets = [str(sys.argv[1])] if len(sys.argv) > 1 else ['B', 'C', 'D']
     crawl(targets)
 
+    print('I am Done!')
+    s3.Object(BUCKET_NAME, f"data/parallel_c/done_logs/instance_{INSTANCE_NAME}.txt").put(Body=f"I am Done! (with {i} courses!)")
+
 if __name__ == "__main__":
     BUCKET_NAME = 't4g-2019-bmas-kursnet-data'
     s3 = boto3.resource('s3')
+    INSTANCE_NAME = 'local'
 
     main()
