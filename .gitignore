@@ -1,3 +1,4 @@
 env/
 frontend/.idea
+frontend/package-lock.json
 baems.pem
