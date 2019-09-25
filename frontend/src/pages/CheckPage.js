@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
 
 const CheckPage = props => {
     const classes = useStyles();
-    const [value, setValue] = React.useState('female');
+    const [value, setValue] = React.useState('ball');
 
     function handleChange(event) {
         setValue(event.target.value);
