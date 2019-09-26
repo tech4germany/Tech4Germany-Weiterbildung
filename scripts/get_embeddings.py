@@ -33,7 +33,12 @@ def generate_embeddings(data_path, relevant_keys):
     print('========== Finished generating embeddings ==========')
     return embeddings
 
-def export_embeddings(embeddings, collection):
+def export_embddings_to_file(embeddings, output_path):
+    with open(output_path, 'a+') as outfile:
+        for key in embeddings:
+            outfile.write(f'{key},{",".join(embeddings[key])}\n')
+
+def export_embeddings_to_database(embeddings, collection):
     print('========== Export embeddings ==========')
     for course in collection.find():
         title = course['meta']['title']
@@ -104,8 +109,8 @@ def main():
     embedding_keys = read_embedding_keys('../word_embeddings/glove_german.txt')
     relevant_keys = get_relevant_keys(courses_collection, '../scraping/output/', embedding_keys)
     embeddings = generate_embeddings('../word_embeddings/glove_german.txt', relevant_keys)
-    tsne_features(embeddings)
-    # export_embeddings(embeddings, courses_collection)
+    # tsne_features(embeddings)
+    export_embddings_to_file(embeddings, './embeddings.csv')
 
 if __name__ == '__main__':
     env_path = Path('../') / '.env'
