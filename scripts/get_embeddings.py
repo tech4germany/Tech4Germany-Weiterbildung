@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 import glob
 import json
 import matplotlib.cm as cm
@@ -5,10 +6,10 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import os
+from pathlib import Path
 from pymongo import MongoClient
 import re
 from sklearn.manifold import TSNE
-from sklearn.decomposition import PCA
 from tqdm import tqdm as tqdm
 
 def read_embedding_keys(path):
@@ -76,9 +77,8 @@ def get_relevant_keys(collection, folder, embeddings):
     print('========== Finished generating relevant keys ==========')
     return found
 
-def pca_features(embeddings):
+def tsne_features(embeddings):
     print('========== Fitting T-SNE ==========')
-    pca = PCA(n_components=2)
     features = []
     for key in embeddings:
         features.append(embeddings[key])
@@ -97,15 +97,17 @@ def pca_features(embeddings):
     print('========== Done Fitting T-SNE ==========')
 
 def main():
-    connection_string = "mongodb+srv://t4g:bmas@cluster0-ryhbu.mongodb.net/test?retryWrites=true&w=majority"
+    connection_string = f'mongodb+srv://{os.getenv("DATABASE_USER")}:{os.getenv("DATABASE_PASSWORD")}@{os.getenv("DATABASE_URL")}'
     mongo_client = MongoClient(connection_string)
     t4g_database = mongo_client.t4g
     courses_collection = t4g_database.courses
     embedding_keys = read_embedding_keys('../word_embeddings/glove_german.txt')
     relevant_keys = get_relevant_keys(courses_collection, '../scraping/output/', embedding_keys)
     embeddings = generate_embeddings('../word_embeddings/glove_german.txt', relevant_keys)
-    pca_features(embeddings)
+    tsne_features(embeddings)
     # export_embeddings(embeddings, courses_collection)
 
 if __name__ == '__main__':
+    env_path = Path('../') / '.env'
+    load_dotenv(dotenv_path=env_path)
     main()
