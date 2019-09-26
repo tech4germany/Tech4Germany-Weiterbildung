@@ -1,6 +1,8 @@
+from dotenv import load_dotenv
 import glob
 import json
 import os
+from pathlib import Path
 from pymongo import MongoClient
 import re
 from tqdm import tqdm as tqdm
@@ -19,11 +21,13 @@ def import_files(collection, folder):
             collection.insert_one(data)
 
 def main():
-    connection_string = "mongodb+srv://t4g:bmas@cluster0-ryhbu.mongodb.net/test?retryWrites=true&w=majority"
+    connection_string = f'mongodb+srv://{os.getenv("DATABASE_USER")}:{os.getenv("DATABASE_PASSWORD")}@{os.getenv("DATABASE_URL")}'
     mongo_client = MongoClient(connection_string)
     t4g_database = mongo_client.t4g
     courses_collection = t4g_database.courses
     import_files(courses_collection, '../scraping/output/')
 
 if __name__ == '__main__':
+    env_path = Path('../') / '.env'
+    load_dotenv(dotenv_path=env_path)
     main()
