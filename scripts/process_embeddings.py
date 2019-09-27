@@ -19,7 +19,7 @@ def export_dist_matrix(dist_matrix, out_path):
 def load_embeddings(path):
     embeddings = []
     with open(path, 'r') as infile:
-        data = csv.reader(infile, delimiter=',', quotechar='|')
+        data = csv.reader(infile, delimiter=',')
         for line in data:
             embedding = [float(x) for x in line[1:]]
             embeddings.append(embedding)
