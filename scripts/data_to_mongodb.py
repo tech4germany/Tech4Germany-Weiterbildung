@@ -21,9 +21,9 @@ def import_files(collection, folder):
             collection.insert_one(data)
 
 def main():
-    connection_string = f'mongodb+srv://{os.getenv("DATABASE_USER")}:{os.getenv("DATABASE_PASSWORD")}@{os.getenv("DATABASE_URL")}'
+    connection_string = os.getenv("DATABASE_URL")
     mongo_client = MongoClient(connection_string)
-    t4g_database = mongo_client.t4g
+    t4g_database = mongo_client.test
     courses_collection = t4g_database.courses
     import_files(courses_collection, '../scraping/output/')
 
