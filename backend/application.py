@@ -10,6 +10,7 @@ import numpy as np
 import os
 from pymongo import MongoClient
 import re
+from scipy import spatial
 import uuid
 
 application = Flask(__name__)
@@ -74,20 +75,44 @@ def find_course(id):
 
 @application.route("/select", methods=['POST'])
 def set_option():
-    data = request.json
-    uuid = data['uuid']
-    option = data['option']
-    resp = {}
-    return json.dumps(resp, default=json_util.default)
+    _uuid = request.json['uuid']
+    option = request.json['option']
+    session = t4g_database.sessions.find_one({'uuid': uuid.UUID(_uuid).hex})
+    session['selected'].append(option)
+    session['options'].remove(option)
+    for val in session['options']:
+        session['options'].remove(val)
+        session['not_selected'].append(val)
+    session['options'] = _get_options(session['selected'], session['not_selected'])
+    t4g_database.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
+    return json.dumps(session, default=json_util.default)
 
 @application.route("/init", methods=['GET'])
 def init_session():
     resp = {}
-    resp['uuid'] = uuid.uuid4()
-    resp['options'] = find_seed_values(cosine_distances, average_distance, entities)
+    resp['uuid'] = uuid.uuid4().hex
+    resp['options'] = _find_seed_values(cosine_distances, average_distance, entities)
+    resp['selected'] = []
+    resp['not_selected'] = []
     t4g_database.sessions.insert_one(resp)
-    print(resp)
     return json.dumps(resp, default=json_util.default)
+
+def _get_options(selected, not_selected, neighborhood_size = 10, num_pts = 2):
+    selected_indices = [entities.index(x) for x in selected]
+    selected_features = [embeddings[x] for x in selected_indices]
+    not_selected_indices = [entities.index(x) for x in not_selected]
+    sum_selected = np.zeros(len(selected_features[0]))
+    for i in range(len(selected_features)):
+        for j in range(len(selected_features[i])):
+            sum_selected[j] += selected_features[i][j]
+    avg_selected = sum_selected / len(selected_features)
+    dists = []
+    for i in range(len(embeddings)):
+        dists.append(spatial.distance.cosine(np.array(embeddings[i]), avg_selected))
+    neighbors = np.argpartition(dists, neighborhood_size)[:neighborhood_size]
+    rel_neighbors = [x for x in neighbors if x not in selected_indices and x not in not_selected_indices]
+    neighbors = list(np.random.choice(rel_neighbors, num_pts, replace=False))
+    return [entities[x] for x in neighbors]
 
 def _load_entities():
     entities = []
@@ -96,6 +121,15 @@ def _load_entities():
         for line in data:
             entities.append(line[0])
     return entities
+
+def _load_embeddings():
+    embeddings = []
+    with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/embeddings.csv'), 'r') as infile:
+        data = csv.reader(infile, delimiter=',')
+        for line in data:
+            embedding = [float(x) for x in line[1:]]
+            embeddings.append(embedding)
+    return embeddings
 
 def _load_cosine_distances():
     cosine_distances = []
@@ -106,6 +140,14 @@ def _load_cosine_distances():
     return cosine_distances
 
 def _get_unique_distances(distances):
+    """Gets all unique distances from a n x n distance matrix where i != j
+    
+    Arguments:
+        distances {list<list<float>>} -- an n x n distance matrix describing all pairwise distances between points i and j
+    
+    Returns:
+        list<float> -- all unique distance with i != j
+    """
     unique_distances = []
     for i in range(len(distances)):
         for j in range(i+1,len(distances)):
@@ -122,7 +164,7 @@ def _find_seed_points(cosine_distance_matrix, average_distance, num_pts):
             return _find_seed_points(cosine_distance_matrix, average_distance, num_pts)
     return seed_pts
 
-def find_seed_values(cosine_distance_matrix, average_distance, entities, num_pts = 2):
+def _find_seed_values(cosine_distance_matrix, average_distance, entities, num_pts = 2):
     seed_pts = _find_seed_points(cosine_distance_matrix, average_distance, num_pts)
     return [entities[x] for x in seed_pts]
 
@@ -138,6 +180,7 @@ if __name__ == "__main__":
 
     # load embeddings and entities
     entities = _load_entities()
+    embeddings = _load_embeddings()
     cosine_distances = _load_cosine_distances()
     unique_distances = _get_unique_distances(cosine_distances)
     average_distance = _get_average_cosine_distance(unique_distances)
