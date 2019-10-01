@@ -28,7 +28,7 @@ def get_average_cosine_distance(unique_distances):
     return sum(unique_distances) / len(unique_distances)
 
 def find_seed_points(cosine_distance_matrix, average_distance, num_pts = 2):
-    seed_pts = np.random.choice(np.arange(len(cosine_distance_matrix[0])), num_pts)
+    seed_pts = np.random.choice(np.arange(len(cosine_distance_matrix[0])), num_pts, replace=False)
     for index in range(len(seed_pts)-1):
         if cosine_distance_matrix[seed_pts[index]][seed_pts[index+1]] < average_distance:
             return find_seed_points(cosine_distance_matrix, average_distance, num_pts)

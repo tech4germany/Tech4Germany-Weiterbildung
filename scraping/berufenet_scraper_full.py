@@ -34,7 +34,7 @@ def crawl_character(character):
                 try:
                     WebDriverWait(driver, 3).until(expected_conditions.presence_of_element_located((By.ID, 'pt1:r1:0:pt1:tbl_suche_az:dc_cl4')))
                     driver.find_element(By.ID, 'pt1:r1:0:pt1:tbl_suche_az:dc_cl4').click()
-                    time.sleep(1)
+                    time.sleep(0.5)
                 except:
                     print(traceback.format_exc())
                     return
@@ -56,5 +56,5 @@ def crawl_character(character):
                 driver.get(url)
         page += 1
 
-for character in string.ascii_uppercase[5:]:
+for character in string.ascii_uppercase[:]:
     crawl_character(character)
