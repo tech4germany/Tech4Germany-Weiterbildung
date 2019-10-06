@@ -75,8 +75,8 @@ def find_course(id):
 
 @application.route("/select", methods=['POST'])
 def set_option():
-    _uuid = request.json['uuid']
-    option = request.json['option']
+    _uuid = request.get_json('uuid')['uuid']
+    option = request.get_json('option')['option']
     session = t4g_database.sessions.find_one({'uuid': uuid.UUID(_uuid).hex})
     session['selected'].append(option)
     session['options'].remove(option)
