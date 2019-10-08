@@ -1,37 +1,52 @@
 import React from 'react';
 import { Option } from './Option';
+import { Submit } from './Submit';
 // Material
-import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
 
 export class Pablov extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			options: ['Wirtschaft, Verwaltung', 'Gesundheit', 'Kunst, Kultur, Gestaltung', 'Landwirtschaft, Natur, Umwelt', 'Metall, Maschinenbau', 'IT, Computer', 'Naturwissenschaften'],
-			optionsType : 'Bereiche',
+			options: [], //['Wirtschaft, Verwaltung', 'Gesundheit', 'Kunst, Kultur, Gestaltung', 'Landwirtschaft, Natur, Umwelt', 'Metall, Maschinenbau', 'IT, Computer', 'Naturwissenschaften'],
+			optionsCategory : 'Bereiche',
+			selected: [],
 			uuid: ''
 		};
-		this.handleClick = this.handleClick.bind(this);
+		this.selectOption = this.selectOption.bind(this);
+		this.sendSelections = this.sendSelections.bind(this);
 	}
 
-	// componentDidMount() {
-	// 	fetch('http://0.0.0.0:3001/init').then(res => res.json())
-	// 	.then((data => this.setState({
-	// 			uuid: data.uuid,
-	// 			options: data.options
-	// 		})
-	// 	));
-	// }
+	componentDidMount() {
+		fetch('http://0.0.0.0:3001/init').then(res => res.json())
+		.then((data => this.setState({
+				uuid: data.uuid,
+				options: data.options
+			})
+		));
+	}
 
-	handleClick(title) {
+	// does not deselect 
+	selectOption(title) {
+		if (this.hasMultiOptions()) {
+			if (!this.state.selected.includes(title)) {
+				this.setState({
+					selected: this.state.selected.concat(title)	
+				});
+			}
+		} else {
+			this.sendSelections(title);
+		}
+	}
+
+	sendSelections(titles) {
+		console.log(titles);
 		fetch('http://0.0.0.0:3001/select', {
 			method: 'POST',
 			body: JSON.stringify({
 				uuid: this.state.uuid,
-				option: title
+				option: titles
 			}),
 			headers: {
 				'Content-Type': 'application/json'
@@ -40,8 +55,17 @@ export class Pablov extends React.Component {
 		.then(res => res.json()).then((data => this.setState({options: data.options})));
 	}
 
+	hasMultiOptions() {
+		if (this.state.options.length > 2) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	render() {
 		const gridM = this.state.options.length > 2 ? 3 : 6;
+		const type = this.state.options.length > 2 ? 'multi' : 'dual';
 
 		return (
 			<React.Fragment>
@@ -54,13 +78,14 @@ export class Pablov extends React.Component {
 					{this.state.options.map(title => 
 						<Option 
 							title={title} 
-							type={this.state.optionsType} 
+							category={this.state.optionsCategory} 
 							gridM={gridM} 
-							onClick={this.handleClick} 
+							onClick={this.selectOption}
+							type={type}
 						/>
 					)}
 				</Grid>
-				<Button size="big">Weiter</Button>
+				{this.hasMultiOptions() && <Submit onClick={this.sendSelections}/>}
 			</React.Fragment>
 		);
 	}

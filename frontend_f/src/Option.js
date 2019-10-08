@@ -11,12 +11,21 @@ import Grid from '@material-ui/core/Grid';
 export class Option extends React.Component {
 	constructor(props) {
 		super(props);
+		this.state = {
+			selected: false
+		}
 		this.handleClick = this.handleClick.bind(this);
 	}
 
 	handleClick() {
 		const title = this.props.title;
 		this.props.onClick(title)
+		// color indication
+		if (this.props.type === 'multi') {
+			this.setState({
+				selected: !this.state.selected
+			});
+		}
 	}
 
 	render() {
@@ -24,11 +33,11 @@ export class Option extends React.Component {
 
 		return (
 			<Grid item xs={12} sm={6} md={this.props.gridM}>
-				<Card>
+				<Card style={{ backgroundColor: this.state.selected ? '#6DECAF' : 'white' }}>
 					<CardActionArea onClick={this.handleClick}>
 						<CardContent style={{ minHeight: 140 }}>
 							<Typography color="textSecondary" gutterBottom>
-		          	{this.props.type}
+		          	{this.props.category}
 		        	</Typography>
 		        	<Typography variant="h4" component="h2" style={{ overflowWrap: 'break-word' }}>
 			          {title}

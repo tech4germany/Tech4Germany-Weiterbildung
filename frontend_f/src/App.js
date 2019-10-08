@@ -5,9 +5,9 @@ import Typography from '@material-ui/core/Typography';
 export class App extends React.Component {
   render() {
     return (
-      <div style={{ padding: 10 }}>
+      <div style={{ padding: 10, position: 'relative' }}>
         <Typography variant="h1" component="h2" gutterBottom>
-          <em>Pablov</em> is here to help
+          <em style={{ backgroundColor: '#6DECAF' }}>Pablov</em> is here to help
         </Typography>
         <Pablov />
       </div>
