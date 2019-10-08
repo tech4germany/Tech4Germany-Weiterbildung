@@ -1,15 +1,15 @@
 import React from 'react';
-import { Pavlov } from './Pavlov';
+import { Pablov } from './Pablov';
 import Typography from '@material-ui/core/Typography';
 
 export class App extends React.Component {
   render() {
     return (
-      <div>
+      <div style={{ padding: 10 }}>
         <Typography variant="h1" component="h2" gutterBottom>
-          Pavlov is here to help
+          <em>Pablov</em> is here to help
         </Typography>
-        <Pavlov />
+        <Pablov />
       </div>
     );
   }

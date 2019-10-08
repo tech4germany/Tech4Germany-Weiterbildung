@@ -1,13 +1,11 @@
 import React from 'react';
 // Material
-import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import { red } from '@material-ui/core/colors';
 import Grid from '@material-ui/core/Grid';
 
 export class Option extends React.Component {
@@ -25,14 +23,14 @@ export class Option extends React.Component {
 		const title = this.props.title[0].toUpperCase() + this.props.title.slice(1)
 
 		return (
-			<Grid item xs={6}>
+			<Grid item xs={12} sm={6} md={this.props.gridM}>
 				<Card>
-					<CardActionArea onClick={this.handleClick} >
-						<CardContent>
+					<CardActionArea onClick={this.handleClick}>
+						<CardContent style={{ minHeight: 140 }}>
 							<Typography color="textSecondary" gutterBottom>
-		          	Inhalt
+		          	{this.props.type}
 		        	</Typography>
-		        	<Typography variant="h4" component="h2">
+		        	<Typography variant="h4" component="h2" style={{ overflowWrap: 'break-word' }}>
 			          {title}
 			        </Typography>
 			        <Typography variant="body2" component="p">
