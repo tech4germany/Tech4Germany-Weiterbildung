@@ -41,7 +41,6 @@ export class Pablov extends React.Component {
 	}
 
 	sendSelections(titles) {
-		console.log(titles);
 		fetch('http://0.0.0.0:3001/select', {
 			method: 'POST',
 			body: JSON.stringify({
