@@ -14,10 +14,10 @@ def tsne_features(jobs):
     y = jobs_ak_2d[:,1]
     plt.scatter(x, y, alpha = 0.05)
     for i, key in enumerate(jobs):
-        interest_points = ['abfallbeauftragte/r''afrikanist/in', 'altenpfleger/in', 'anlageberater/in', 'apotheker/in', 'architekt/in', 'arzt/ärztin', 'betriebswirt/in (bbig)', 'bildeinrahmer/in', 'blockchain-entwickler/in', 'bodensteward/-stewardess', 'dachdecker/in', 'detektiv/in', 'fachapotheker/in', 'fahrzeugpfleger/in', 'fitnesstrainer/in', 'fluglehrer/in' 'forstmaschinenführer/in', 'fußballtrainer/in', 'gamedesigner/in', 'geofraf/in', 'gestalter/in - produktdesign', 'gewandmeister/in', 'imam', 'inkassobeauftragte/r (außendienst)', 'jurist/in', 'klauenpfleger/in' 'modist/in', 'politiker/in', 'regisseur/in', 'rettungshelfer/in', 'schweißer/in', 'schiffssteward/-stewardess', 'softwareentwickler/in', 'sportgerätebauer/in', 'verkaufstrainer/in', 'wahrsager/in', 'wett- und lotterieannehmer/in']
+        interest_points = ['abfallbeauftragte/r''afrikanist/in', 'altenpfleger/in', 'anlageberater/in', 'apotheker/in', 'architekt/in', 'arzt/ärztin', 'betriebswirt/in (bbig)', 'bildeinrahmer/in', 'bodensteward/-stewardess', 'dachdecker/in', 'detektiv/in', 'fahrzeugpfleger/in', 'fitnesstrainer/in', 'fluglehrer/in' 'forstmaschinenführer/in', 'fußballtrainer/in', 'gamedesigner/in', 'geofraf/in', 'gestalter/in - produktdesign', 'gewandmeister/in', 'imam', 'inkassobeauftragte/r (außendienst)', 'jurist/in', 'klauenpfleger/in' 'modist/in', 'politiker/in', 'regisseur/in', 'rettungshelfer/in', 'schweißer/in', 'schiffssteward/-stewardess', 'softwareentwickler/in', 'sportgerätebauer/in', 'verkaufstrainer/in', 'wahrsager/in', 'wett- und lotterieannehmer/in']
         if key.lower() in interest_points:
             plt.annotate(key, xy=(x[i], y[i]), xytext=(5, 2), 
-                        textcoords='offset points', ha='right', va='bottom', size=8)
+                        textcoords='offset points', ha='right', va='bottom', size=15)
         # plt.annotate(key, xy=(x[i], y[i]), xytext=(5, 2), color='blue',
         #             textcoords='offset points', ha='right', va='bottom', size=8)
     plt.legend(loc=4)
