@@ -11,11 +11,13 @@ import os
 from pymongo import MongoClient
 import re
 from scipy import spatial
-from utils import *
+import utils
 import uuid
 
 application = Flask(__name__)
 CORS(application)
+
+# cache data heavy ressources
 cache = Cache(application, config={'CACHE_TYPE': 'simple'})
 cache.init_app(application)
 
@@ -86,53 +88,50 @@ def set_option():
     print(session)
     if request.get_json('option_type')['option_type'] == "Berufe":
         # store selected job option and send the session information with generated options
-        option = request.get_json('option')['option']
+        option = request.get_json('options')['options'][0]
         session['selected'].append(option)
         session['options'].remove(option)
+
         for val in session['options']:
             session['options'].remove(val)
             session['not_selected'].append(val)
-        session['options'], session['jobs'] = get_options(job_entities, job_embeddings, session['selected'], session['not_selected'])
-        if len(session['options']) > 0:
-            session['final'] = 0
-        else:
-            session['final'] = 1
+
+        session['options'], session['jobs'] = utils.get_options(job_entities, job_embeddings, session['selected'], session['not_selected'])
+        session['final'] =  0 if len(session['options']) > 0 else 1
+
         t4g_database.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
+        return 200 if not application.debug else json.dumps(session, default=json_util.default)
 
-        # also send results
-        return json.dumps(session, default=json_util.default)
-
-    elif request.get_json('option_type')['option_type'] == "Kategorien":
+    elif request.get_json('option_type')['option_type'] == "Branchen":
         # store selected categories and send the session with initial options
-        categories = session['categories']
+        categories = request.get_json('options')['options']
+        print(categories)
         start_jobs_titles = []
         for category in categories:
-            print(category)
             job_id = t4g_database.categories.find_one({"category_name": category})['job_id']
-            related_job = load_related_job(t4g_database ,job_id)
+            related_job = utils.load_related_job(t4g_database ,job_id)
             start_jobs_titles.append(related_job['title'])
-        options = load_init_options(dist_matrix, job_entities, start_jobs_titles)
+
+        options = utils.load_init_options(dist_matrix, job_entities, start_jobs_titles)
         session['options'] = options
+        session['option_type'] = "Berufe"
         t4g_database.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
-        return json.dumps(session, default=json_util.default)
+        return 200 if not application.debug else json.dumps(session, default=json_util.default)
     else:
-        return "Invalid option type, please use either 'Berufe' or 'Kategorien'", 406
+        return "Invalid option type, please use either 'Berufe' or 'Branchen'", 406
 
 @application.route("/init", methods=['GET'])
 def init_session():
     session = {}
     session['uuid'] = uuid.uuid4().hex
-    session['categories'] = load_categories(t4g_database)
-    session['fav_jobs'] = []
-    session['fav_courses'] = []
-    session['selected'] = []
-    session['not_selected'] = []
-    session['options'] = []
+    session['options'] = utils.load_categories(t4g_database)
+    session['option_type'] = "Branchen"
+    session['fav_jobs'] = session['fav_courses'] = session['selected'] = session['not_selected'] = []
     t4g_database.sessions.insert_one(session)
     return json.dumps(session, default=json_util.default)
 
 @application.route("/like", methods=['POST'])
-def like():
+def like_item():
     _uuid = request.get_json('uuid')['uuid']
     title = request.get_json('title')['title']
     session = t4g_database.sessions.find_one({"uuid": _uuid})
@@ -142,10 +141,21 @@ def like():
         session['fav_jobs'].append(title)
 
     t4g_database.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
-    return json.dumps(session, default=json_util.default)
+    return 200 if not application.debug else json.dumps(session, default=json_util.default)
 
-def _get_job_embedding(job):
-    return job_embeddings[job]
+@application.route("/courses/add", methods=['POST'])
+def add_course():
+    course = {}
+    course['title'] = request.get_json('title')['title']
+    # TODO add all required fields
+
+    result = t4g_database.courses.insert_one(course)
+    return 200 if not application.debug else result
+
+@application.route("/courses/delete", methods=['POST'])
+def delete_course():
+    result = t4g_database.courses.delete_one({"title": request.get_json('title')['title']})
+    return 200 if not application.debug else result
 
 if __name__ == "__main__":
     # load environment variables
@@ -158,8 +168,8 @@ if __name__ == "__main__":
     t4g_database = mongo_client.test
 
     # load embeddings and entities
-    job_entities, job_embeddings = load_jobs_data('../data/job_embeddings.csv')
-    dist_matrix = load_dists('../data/jobs_cosine_distances.csv')
+    job_entities, job_embeddings = utils.load_jobs_data('../data/job_embeddings.csv')
+    dist_matrix = utils.load_dists('../data/jobs_cosine_distances.csv')
 
     # start application
     application.run(debug=True, host="0.0.0.0", port=os.getenv("BACKEND_PORT"))

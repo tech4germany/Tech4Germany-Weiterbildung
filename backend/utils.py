@@ -6,6 +6,14 @@ import os
 from scipy import spatial
 
 def load_jobs_data(file_name):
+    """Loads entities and embeddings from the given csv file
+    
+    Arguments:
+        file_name {String} -- path to the given csv file
+    
+    Returns:
+        list<String>, list<float> -- two lists including all entities and all embeddings
+    """
     embeddings = []
     entities = []
     with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), file_name), 'r') as infile:
@@ -13,9 +21,19 @@ def load_jobs_data(file_name):
         for line in data:
             embeddings.append([float(x) for x in line[1:]])
             entities.append(line[0])
+
     return entities, embeddings
 
+
 def load_dists(file_path):
+    """Loads a distance matrix from the given csv file
+    
+    Arguments:
+        file_path {String} -- path to the given csv file
+    
+    Returns:
+        list<list<float>> -- a 2d distance matrix indicating the pairwise cosine distances
+    """
     with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), file_path), 'r') as infile:
         data = csv.reader(infile, delimiter=',')
         dist_matrix = []
@@ -23,13 +41,31 @@ def load_dists(file_path):
             dist_matrix.append([float(x) for x in line])
     return dist_matrix
 
+
 def load_categories(database):
+    """Loads all categories that are stored in the given database
+    
+    Arguments:
+        database {TODO} -- the given database
+    
+    Returns:
+        list<String> -- all stored categories
+    """
     category_names = []
     for category_cursor in database.categories.find({}):
         category_names.append(category_cursor['category_name'])
     return category_names
 
 def load_related_job(database, job_id):
+    """Loads a job given a job id
+    
+    Arguments:
+        database {TODO} -- 
+        job_id {[type]} -- [description]
+    
+    Returns:
+        [type] -- [description]
+    """
     return database.jobs.find_one({'job_id': job_id})
 
 def load_init_options(dist_matrix, entities, job_titles):

@@ -4,4 +4,6 @@ frontend/package-lock.json
 baems.pem
 .env
 .DS_Store
-
+.vscode/
+*.pem
+*/__pycache__
