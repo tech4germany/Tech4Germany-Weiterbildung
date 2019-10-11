@@ -36,12 +36,17 @@ def list_courses(limit):
     courses_collection = list(t4g_database.courses.find({}).limit(limit))
     return json.dumps(courses_collection, default=json_util.default)
 
-"""
-Lists all existing courses with a given title
-"""
 @application.route("/courses/filter/<title>", methods=['GET'])
 @cache.cached(timeout=50)
 def find_all_courses(title):
+    """Lists all existing courses with a given title
+    
+    Arguments:
+        title {[type]} -- [description]
+    
+    Returns:
+        [type] -- [description]
+    """
     courses_collection = list(t4g_database.courses.find({ 'title': { '$regex': re.compile(f'.*{title}.*', re.IGNORECASE) }}))
     return json.dumps(courses_collection, default=json_util.default)
 
@@ -93,7 +98,14 @@ def set_option():
             session['options'].remove(val)
             session['not_selected'].append(val)
 
-        session['options'], session['jobs'] = utils.get_options(job_entities, job_embeddings, session['selected'], session['not_selected'])
+        options, session['jobs'] = utils.get_options(job_entities, job_embeddings, session['selected'], session['not_selected'])
+        option_objects = []
+        for option in options:
+            option_object = {}
+            option_object['title'] = option
+            option_object['info'] = utils.get_job_info(t4g_database, option)
+            option_objects.append(option_object)
+        session['options'] = option_objects
         session['final'] =  0 if len(session['options']) > 0 else 1
 
         t4g_database.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
@@ -102,7 +114,6 @@ def set_option():
     elif request.get_json('option_type')['option_type'] == "Branchen":
         # store selected categories and send the session with initial options
         categories = request.get_json('options')['options']
-        print(categories)
         start_jobs_titles = []
         for category in categories:
             job_id = t4g_database.categories.find_one({"category_name": category})['job_id']
@@ -110,7 +121,13 @@ def set_option():
             start_jobs_titles.append(related_job['title'])
 
         options = utils.load_init_options(dist_matrix, job_entities, start_jobs_titles)
-        session['options'] = options
+        option_objects = []
+        for option in options:
+            option_object = {}
+            option_object['title'] = option
+            option_object['info'] = utils.get_job_info(t4g_database, option)
+            option_objects.append(option_object)
+        session['options'] = option_objects
         session['option_type'] = "Berufe"
         t4g_database.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
         return 200 if not application.debug else json.dumps(session, default=json_util.default)
@@ -119,6 +136,11 @@ def set_option():
 
 @application.route("/init", methods=['GET'])
 def init_session():
+    """[summary]
+    
+    Returns:
+        [type] -- [description]
+    """
     session = {}
     session['uuid'] = uuid.uuid4().hex
     session['options'] = utils.load_categories(t4g_database)
@@ -129,6 +151,11 @@ def init_session():
 
 @application.route("/like", methods=['POST'])
 def like_item():
+    """[summary]
+    
+    Returns:
+        [type] -- [description]
+    """
     _uuid = request.get_json('uuid')['uuid']
     title = request.get_json('title')['title']
     session = t4g_database.sessions.find_one({"uuid": _uuid})
@@ -142,6 +169,11 @@ def like_item():
 
 @application.route("/courses/add", methods=['POST'])
 def add_course():
+    """[summary]
+    
+    Returns:
+        [type] -- [description]
+    """
     course = {}
     course['title'] = request.get_json('title')['title']
     # TODO add all required fields
@@ -151,6 +183,11 @@ def add_course():
 
 @application.route("/courses/delete", methods=['POST'])
 def delete_course():
+    """[summary]
+    
+    Returns:
+        [type] -- [description]
+    """
     # NOTE that deleting only according to the title might not be save
     # TODO use multiple identifers
     result = t4g_database.courses.delete_one({"title": request.get_json('title')['title']})
