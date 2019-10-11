@@ -88,7 +88,7 @@ def set_option():
     print(session)
     if request.get_json('option_type')['option_type'] == "Berufe":
         # store selected job option and send the session information with generated options
-        option = request.get_json('options')['options']
+        option = request.get_json('options')['options'][0]
         session['selected'].append(option)
         session['options'].remove(option)
 
