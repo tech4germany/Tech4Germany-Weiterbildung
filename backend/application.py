@@ -105,6 +105,7 @@ def set_option():
     elif request.get_json('option_type')['option_type'] == "Branchen":
         # store selected categories and send the session with initial options
         categories = request.get_json('options')['options']
+        print(categories)
         start_jobs_titles = []
         for category in categories:
             job_id = t4g_database.categories.find_one({"category_name": category})['job_id']
@@ -113,6 +114,7 @@ def set_option():
 
         options = utils.load_init_options(dist_matrix, job_entities, start_jobs_titles)
         session['options'] = options
+        session['option_type'] = "Berufe"
         t4g_database.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
         return 200 if not application.debug else json.dumps(session, default=json_util.default)
     else:
@@ -123,7 +125,8 @@ def init_session():
     session = {}
     session['uuid'] = uuid.uuid4().hex
     session['options'] = utils.load_categories(t4g_database)
-    session['fav_jobs'] = session['fav_courses'] = session['selected'] = session['not_selected'] = session['options'] = []
+    session['option_type'] = "Branchen"
+    session['fav_jobs'] = session['fav_courses'] = session['selected'] = session['not_selected'] = []
     t4g_database.sessions.insert_one(session)
     return json.dumps(session, default=json_util.default)
 
