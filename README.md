@@ -16,4 +16,4 @@
 ### Backend
 
 - Install requirements with `pip3 install -r requirements.txt`
-- Run server: `python3 app.py`
+- Run server: `python3 application.py`
