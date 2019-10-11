@@ -1,6 +1,7 @@
 import React from 'react';
 import { Option } from './Option';
 import { Submit } from './Submit';
+import { JobResults } from './JobResults';
 // Material
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -9,10 +10,11 @@ export class Pablov extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			options: [], //['Wirtschaft, Verwaltung', 'Gesundheit', 'Kunst, Kultur, Gestaltung', 'Landwirtschaft, Natur, Umwelt', 'Metall, Maschinenbau', 'IT, Computer', 'Naturwissenschaften'],
-			optionsCategory : 'Bereiche',
+			uuid: '',
+			options: [], //['Wirtschaft, Verwaltung', 'Gesundheit', 'Kunst, Kultur, Gestaltung', 'Landwirtschaft, Natur', 'Metall, Maschinenbau', 'IT, Computer', 'Naturwissenschaften', 'Malen nach Zahlen'],
+			optionsType : 'Branchen',
 			selected: [],
-			uuid: ''
+			results: ['Maurer', 'Schreiner', 'Fachangestellter für Wurst']
 		};
 		this.selectOption = this.selectOption.bind(this);
 		this.sendSelections = this.sendSelections.bind(this);
@@ -40,8 +42,9 @@ export class Pablov extends React.Component {
 		}
 	}
 
-	sendSelections(titles) {
-		fetch('http://0.0.0.0:3001/select', {
+	sendSelections(titles=this.state.selected) {
+		console.log(titles);
+		const response = fetch('http://0.0.0.0:3001/select', {
 			method: 'POST',
 			body: JSON.stringify({
 				uuid: this.state.uuid,
@@ -51,7 +54,8 @@ export class Pablov extends React.Component {
 				'Content-Type': 'application/json'
 			}
 		})
-		.then(res => res.json()).then((data => this.setState({options: data.options})));
+		.then(res => res.json())
+		.then((data => this.setState({options: data.options})));
 	}
 
 	hasMultiOptions() {
@@ -77,7 +81,7 @@ export class Pablov extends React.Component {
 					{this.state.options.map(title => 
 						<Option 
 							title={title} 
-							category={this.state.optionsCategory} 
+							type={this.state.optionsType} 
 							gridM={gridM} 
 							onClick={this.selectOption}
 							type={type}
@@ -85,6 +89,7 @@ export class Pablov extends React.Component {
 					)}
 				</Grid>
 				{this.hasMultiOptions() && <Submit onClick={this.sendSelections}/>}
+				<JobResults jobs={this.state.results}/>
 			</React.Fragment>
 		);
 	}

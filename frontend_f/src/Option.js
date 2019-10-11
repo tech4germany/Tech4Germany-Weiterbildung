@@ -37,19 +37,19 @@ export class Option extends React.Component {
 					<CardActionArea onClick={this.handleClick}>
 						<CardContent style={{ minHeight: 140 }}>
 							<Typography color="textSecondary" gutterBottom>
-		          	{this.props.category}
+		          	{this.props.type}
 		        	</Typography>
 		        	<Typography variant="h4" component="h2" style={{ overflowWrap: 'break-word' }}>
 			          {title}
 			        </Typography>
 			        <Typography variant="body2" component="p">
-			          Haben wir noch mehr Infos?
+			          Mehr Infos?
 			        </Typography>
 			    	</CardContent>
 			    </CardActionArea>
 					<CardActions>
 		        <Button size="small">Merken</Button>
-		        <Button size="small">Mehr Infos</Button>
+		        <Button size="small">Star</Button>
 		      </CardActions>
 				</Card>
 			</Grid>

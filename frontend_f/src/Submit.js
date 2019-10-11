@@ -12,7 +12,7 @@ export class Submit extends React.Component {
 				size="large" 
 				color="primary" 
 				onClick={this.handleClick}
-				style={{ fontSize: '2em', position: 'absolute', right: 0 }}
+				style={{ fontSize: '2em', position: 'absolute', right: 0, color: '#6DECAF' }}
 			>
 				Weiter
 			</Button>
