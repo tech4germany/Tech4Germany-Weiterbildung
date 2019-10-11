@@ -1,23 +1,20 @@
 from bson import json_util
 from bson.objectid import ObjectId
-import csv
 from dotenv import load_dotenv
 from flask import Flask, render_template, request
 from flask_caching import Cache
 from flask_cors import CORS
 import json
-import numpy as np
 import os
 from pymongo import MongoClient
 import re
-from scipy import spatial
 import utils
 import uuid
 
 application = Flask(__name__)
 CORS(application)
 
-# cache data heavy ressources
+# initialize cache for data heavy ressources
 cache = Cache(application, config={'CACHE_TYPE': 'simple'})
 cache.init_app(application)
 
@@ -154,6 +151,8 @@ def add_course():
 
 @application.route("/courses/delete", methods=['POST'])
 def delete_course():
+    # NOTE that deleting only according to the title might not be save
+    # TODO use multiple identifers
     result = t4g_database.courses.delete_one({"title": request.get_json('title')['title']})
     return 200 if not application.debug else result
 
