@@ -11,11 +11,12 @@ import os
 from pymongo import MongoClient
 import re
 from scipy import spatial
+from utils import *
 import uuid
 
 application = Flask(__name__)
 CORS(application)
-cache = Cache(application,config={'CACHE_TYPE': 'simple'})
+cache = Cache(application, config={'CACHE_TYPE': 'simple'})
 cache.init_app(application)
 
 """
@@ -62,7 +63,7 @@ def find_courses(title, limit):
 
 @application.route("/courses/find/<id>", methods=['GET'])
 def find_course(id):
-    """Finds a specifc course that matches the given id
+    """Finds a specific course that matches the given id
     
     Arguments:
         id {String} -- course id in the database
@@ -75,98 +76,76 @@ def find_course(id):
 
 @application.route("/select", methods=['POST'])
 def set_option():
+    """[summary]
+    
+    Returns:
+        [type] -- [description]
+    """
     _uuid = request.get_json('uuid')['uuid']
-    option = request.get_json('option')['option']
     session = t4g_database.sessions.find_one({'uuid': uuid.UUID(_uuid).hex})
-    session['selected'].append(option)
-    session['options'].remove(option)
-    for val in session['options']:
-        session['options'].remove(val)
-        session['not_selected'].append(val)
-    session['options'] = _get_options(session['selected'], session['not_selected'])
-    t4g_database.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
-    return json.dumps(session, default=json_util.default)
+    print(session)
+    if request.get_json('option_type')['option_type'] == "Berufe":
+        # store selected job option and send the session information with generated options
+        option = request.get_json('option')['option']
+        session['selected'].append(option)
+        session['options'].remove(option)
+        for val in session['options']:
+            session['options'].remove(val)
+            session['not_selected'].append(val)
+        session['options'], session['jobs'] = get_options(job_entities, job_embeddings, session['selected'], session['not_selected'])
+        if len(session['options']) > 0:
+            session['final'] = 0
+        else:
+            session['final'] = 1
+        t4g_database.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
+
+        # also send results
+        return json.dumps(session, default=json_util.default)
+
+    elif request.get_json('option_type')['option_type'] == "Kategorien":
+        # store selected categories and send the session with initial options
+        categories = session['categories']
+        start_jobs_titles = []
+        for category in categories:
+            print(category)
+            job_id = t4g_database.categories.find_one({"category_name": category})['job_id']
+            related_job = load_related_job(t4g_database ,job_id)
+            start_jobs_titles.append(related_job['title'])
+        options = load_init_options(dist_matrix, job_entities, start_jobs_titles)
+        session['options'] = options
+        t4g_database.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
+        return json.dumps(session, default=json_util.default)
+    else:
+        return "Invalid option type, please use either 'Berufe' or 'Kategorien'", 406
 
 @application.route("/init", methods=['GET'])
 def init_session():
-    resp = {}
-    resp['uuid'] = uuid.uuid4().hex
-    resp['options'] = _find_seed_values(cosine_distances, average_distance, entities)
-    resp['selected'] = []
-    resp['not_selected'] = []
-    t4g_database.sessions.insert_one(resp)
-    return json.dumps(resp, default=json_util.default)
+    session = {}
+    session['uuid'] = uuid.uuid4().hex
+    session['categories'] = load_categories(t4g_database)
+    session['fav_jobs'] = []
+    session['fav_courses'] = []
+    session['selected'] = []
+    session['not_selected'] = []
+    session['options'] = []
+    t4g_database.sessions.insert_one(session)
+    return json.dumps(session, default=json_util.default)
 
-def _get_options(selected, not_selected, neighborhood_size = 10, num_pts = 2):
-    selected_indices = [entities.index(x) for x in selected]
-    selected_features = [embeddings[x] for x in selected_indices]
-    not_selected_indices = [entities.index(x) for x in not_selected]
-    sum_selected = np.zeros(len(selected_features[0]))
-    for i in range(len(selected_features)):
-        for j in range(len(selected_features[i])):
-            sum_selected[j] += selected_features[i][j]
-    avg_selected = sum_selected / len(selected_features)
-    dists = []
-    for i in range(len(embeddings)):
-        dists.append(spatial.distance.cosine(np.array(embeddings[i]), avg_selected))
-    neighbors = np.argpartition(dists, neighborhood_size)[:neighborhood_size]
-    rel_neighbors = [x for x in neighbors if x not in selected_indices and x not in not_selected_indices]
-    neighbors = list(np.random.choice(rel_neighbors, num_pts, replace=False))
-    return [entities[x] for x in neighbors]
+@application.route("/like", methods=['POST'])
+def like():
+    _uuid = request.get_json('uuid')['uuid']
+    title = request.get_json('title')['title']
+    session = t4g_database.sessions.find_one({"uuid": _uuid})
+    if request.get_json('option_type')['option_type'] == "Kurs":
+        session['fav_courses'].append(title)
+    elif request.get_json('option_type')['option_type'] == "Beruf":
+        session['fav_jobs'].append(title)
 
-def _load_entities():
-    entities = []
-    with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/embeddings.csv'), 'r') as embeddings_in:
-        data = csv.reader(embeddings_in, delimiter=',')
-        for line in data:
-            entities.append(line[0])
-    return entities
+    t4g_database.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
+    return json.dumps(session, default=json_util.default)
 
-def _load_embeddings():
-    embeddings = []
-    with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/embeddings.csv'), 'r') as infile:
-        data = csv.reader(infile, delimiter=',')
-        for line in data:
-            embedding = [float(x) for x in line[1:]]
-            embeddings.append(embedding)
-    return embeddings
-
-def _load_cosine_distances():
-    cosine_distances = []
-    with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/embeddings_dists_cosine.csv'), 'r') as dists_in:
-        data = csv.reader(dists_in, delimiter=',')
-        for line in data:
-            cosine_distances.append([float(x) for x in line])
-    return cosine_distances
-
-def _get_unique_distances(distances):
-    """Gets all unique distances from a n x n distance matrix where i != j
-    
-    Arguments:
-        distances {list<list<float>>} -- an n x n distance matrix describing all pairwise distances between points i and j
-    
-    Returns:
-        list<float> -- all unique distance with i != j
-    """
-    unique_distances = []
-    for i in range(len(distances)):
-        for j in range(i+1,len(distances)):
-            unique_distances.append(distances[i][j])
-    return unique_distances
-
-def _get_average_cosine_distance(unique_distances):
-    return sum(unique_distances) / len(unique_distances)
-
-def _find_seed_points(cosine_distance_matrix, average_distance, num_pts):
-    seed_pts = np.random.choice(np.arange(len(cosine_distance_matrix[0])), num_pts)
-    for index in range(len(seed_pts)-1):
-        if cosine_distance_matrix[seed_pts[index]][seed_pts[index+1]] < average_distance:
-            return _find_seed_points(cosine_distance_matrix, average_distance, num_pts)
-    return seed_pts
-
-def _find_seed_values(cosine_distance_matrix, average_distance, entities, num_pts = 2):
-    seed_pts = _find_seed_points(cosine_distance_matrix, average_distance, num_pts)
-    return [entities[x] for x in seed_pts]
+def _get_job_embedding(job):
+    return job_embeddings[job]
 
 if __name__ == "__main__":
     # load environment variables
@@ -179,11 +158,8 @@ if __name__ == "__main__":
     t4g_database = mongo_client.test
 
     # load embeddings and entities
-    entities = _load_entities()
-    embeddings = _load_embeddings()
-    cosine_distances = _load_cosine_distances()
-    unique_distances = _get_unique_distances(cosine_distances)
-    average_distance = _get_average_cosine_distance(unique_distances)
+    job_entities, job_embeddings = load_jobs_data('../data/job_embeddings.csv')
+    dist_matrix = load_dists('../data/jobs_cosine_distances.csv')
 
     # start application
     application.run(debug=True, host="0.0.0.0", port=os.getenv("BACKEND_PORT"))
