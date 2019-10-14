@@ -7,20 +7,23 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
+import StarBorderIcon from '@material-ui/icons/StarBorder';
+import StarIcon from '@material-ui/icons/Star';
 
 export class Option extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			selected: false
-		}
+			selected: false,
+			liked: false
+		};
 		this.handleClick = this.handleClick.bind(this);
+		this.handleLike = this.handleLike.bind(this);
 	}
 
 	componentDidMount() {
-		//this.state.selected = false;
 		this.setState({
-			selected: false
+			selected: false,
 		});
 	}
 
@@ -28,13 +31,22 @@ export class Option extends React.Component {
 		const title = this.props.title;
 		this.props.onClick(title);
 		this.setState({
-			selected: !this.state.selected
+			selected: !this.state.selected,
+			liked: this.state.liked
 		});
+	}
+
+	handleLike() {
+		this.setState( {
+			selected: this.state.selected,
+			liked: !this.state.liked
+		});
+		const title = this.props.title;
+		this.props.likeHandler(title);
 	}
 
 	render() {
 		const title = this.props.title.title[0].toUpperCase() + this.props.title.title.slice(1)
-
 		return (
 			<Grid item xs={12} sm={6} md={this.props.gridM}>
 				<Card style={{ backgroundColor: this.state.selected ? '#6DECAF' : 'white' }}>
@@ -52,8 +64,7 @@ export class Option extends React.Component {
 			    	</CardContent>
 			    </CardActionArea>
 					<CardActions>
-		        <Button size="small">Merken</Button>
-		        <Button size="small">Star</Button>
+						<Button size="small" onClick={() => this.handleLike()}>{this.state.liked ? <StarIcon color={"primary"}/> : <StarBorderIcon/>} Merken</Button>
 		      </CardActions>
 				</Card>
 			</Grid>

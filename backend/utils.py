@@ -168,5 +168,9 @@ def get_job_info(database, title):
     Returns:
         String -- [description]
     """
-    job = database.jobs.find_one({"title": title})
-    return job['info']
+    try:
+        job = database.jobs.find_one({"title": title})
+        return job['info']
+    except:
+        print(title)
+        return ""

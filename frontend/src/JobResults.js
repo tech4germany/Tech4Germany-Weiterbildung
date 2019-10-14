@@ -14,7 +14,8 @@ export class JobResults extends React.Component {
 				</Typography>
 				<List dense={true} component="nav" aria-label="main mailbox folders">
 					{this.props.jobs.map(job => 
-						<ListItem button>
+						<ListItem key={job}
+								  button>
 		          <ListItemText primary={job} />
 		        </ListItem>
 					)}

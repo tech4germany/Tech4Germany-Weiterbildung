@@ -16,6 +16,7 @@ export class Pablov extends React.Component {
 			selected: [],
 			jobs: []
 		};
+		this.like = this.like.bind(this);
 		this.selectOption = this.selectOption.bind(this);
 		this.sendSelections = this.sendSelections.bind(this);
 	}
@@ -48,6 +49,20 @@ export class Pablov extends React.Component {
 		} else {
 			this.sendSelections([title]);
 		}
+	}
+
+	like(title) {
+		fetch('http://0.0.0.0:3001/like', {
+			method: 'POST',
+			body: JSON.stringify({
+				uuid: this.state.uuid,
+				options: title,
+				option_type: this.state.optionsType
+			}),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
 	}
 
 	sendSelections(titles=this.state.selected) {
@@ -106,6 +121,7 @@ export class Pablov extends React.Component {
 							type={this.state.optionsType} 
 							gridM={gridM} 
 							onClick={this.selectOption}
+							likeHandler={this.like}
 						/>
 					)}
 				</Grid>
