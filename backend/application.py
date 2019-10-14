@@ -163,7 +163,8 @@ def like_item():
         [type] -- [description]
     """
     _uuid = request.get_json('uuid')['uuid']
-    title = request.get_json('title')['title']
+    title = request.get_json('options')['options']
+    print(title)
     session = t4g_database.sessions.find_one({"uuid": _uuid})
     if request.get_json('option_type')['option_type'] == "Kurs":
         session['fav_courses'].append(title)

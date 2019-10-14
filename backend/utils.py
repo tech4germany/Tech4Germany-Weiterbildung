@@ -115,7 +115,7 @@ def _find_close_point(dist_matrix, entities, selected_title, neighborhood_size =
     neighbors = np.argpartition(dists, neighborhood_size)[skip_range:neighborhood_size]
     return np.random.choice(neighbors, 1)[0]
 
-def get_options(entities, embeddings, selected, not_selected, neighborhood_size = 100, num_pts = 2, skip_range = 10, num_jobs = 10):
+def get_options(entities, embeddings, selected, not_selected, neighborhood_size = 100, num_pts = 2, skip_range = 10, num_jobs = 5):
     """Gets two k-nearest neighbors of all selected entities
     
     Arguments:
