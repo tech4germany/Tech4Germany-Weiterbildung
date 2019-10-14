@@ -86,7 +86,7 @@ def load_init_options(dist_matrix, entities, selected_titles):
         option_2 = _find_close_point(dist_matrix, entities, selected_titles[0])
 
         # ensure that we select two different options
-        while option_2 is option_1:
+        while option_2 == option_1:
             option_2 = _find_close_point(dist_matrix, entities, selected_titles[0])
         options = [entities[option_1], entities[option_2]]
 
@@ -157,3 +157,16 @@ def get_options(entities, embeddings, selected, not_selected, neighborhood_size 
         return options, jobs
     except: # no more possible options
         return [], jobs
+
+def get_job_info(database, title):
+    """Gets the information details for a given job title
+    
+    Arguments:
+        database {pymongo.database.Database} -- the given database object
+        title {String} -- the job title
+    
+    Returns:
+        String -- [description]
+    """
+    job = database.jobs.find_one({"title": title})
+    return job['info']
