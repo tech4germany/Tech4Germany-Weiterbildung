@@ -174,3 +174,19 @@ def get_job_info(database, title):
     except:
         print(title)
         return ""
+
+def get_category_info(database, title):
+    """Gets the information details for a given job title
+    
+    Arguments:
+        database {pymongo.database.Database} -- the given database object
+        title {String} -- the job title
+    
+    Returns:
+        String -- [description]
+    """
+    try:
+        category = database.categories.find_one({"category_name": title})
+        return category['info']
+    except:
+        return ""

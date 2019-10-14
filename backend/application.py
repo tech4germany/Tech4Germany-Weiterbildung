@@ -147,7 +147,7 @@ def init_session():
     for option in options:
             option_object = {}
             option_object['title'] = option
-            option_object['info'] = ""
+            option_object['info'] = utils.get_category_info(t4g_database, option)
             option_objects.append(option_object)
     session['options'] = option_objects
     session['option_type'] = "Branchen"
@@ -164,11 +164,11 @@ def like_item():
     """
     _uuid = request.get_json('uuid')['uuid']
     title = request.get_json('options')['options']
-    print(title)
     session = t4g_database.sessions.find_one({"uuid": _uuid})
-    if request.get_json('option_type')['option_type'] == "Kurs":
+    if request.get_json('option_type')['option_type'] == "Kurse":
         session['fav_courses'].append(title)
-    elif request.get_json('option_type')['option_type'] == "Beruf":
+    elif request.get_json('option_type')['option_type'] == "Berufe":
+        print("in session")
         session['fav_jobs'].append(title)
 
     t4g_database.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
