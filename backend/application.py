@@ -38,11 +38,11 @@ def list_courses(limit):
 
 @application.route("/courses/filter/<title>", methods=['GET'])
 @cache.cached(timeout=50)
-def find_all_courses(title):
-    """Lists all existing courses with a given title
+def find_all_courses_with_title(title):
+    """Lists all existing courses matching a given title 
     
     Arguments:
-        title {[type]} -- [description]
+        title {String} -- the search title
     
     Returns:
         [type] -- [description]
@@ -87,7 +87,6 @@ def set_option():
     """
     _uuid = request.get_json('uuid')['uuid']
     session = t4g_database.sessions.find_one({'uuid': uuid.UUID(_uuid).hex})
-    print(session)
     if request.get_json('option_type')['option_type'] == "Berufe":
         # store selected job option and send the session information with generated options
         option = request.get_json('options')['options'][0]
@@ -116,7 +115,7 @@ def set_option():
         categories = request.get_json('options')['options']
         start_jobs_titles = []
         for category in categories:
-            job_id = t4g_database.categories.find_one({"category_name": category})['job_id']
+            job_id = t4g_database.categories.find_one({"category_name": category['title']})['job_id']
             related_job = utils.load_related_job(t4g_database ,job_id)
             start_jobs_titles.append(related_job['title'])
 
@@ -143,7 +142,14 @@ def init_session():
     """
     session = {}
     session['uuid'] = uuid.uuid4().hex
-    session['options'] = utils.load_categories(t4g_database)
+    options = utils.load_categories(t4g_database)
+    option_objects = []
+    for option in options:
+            option_object = {}
+            option_object['title'] = option
+            option_object['info'] = ""
+            option_objects.append(option_object)
+    session['options'] = option_objects
     session['option_type'] = "Branchen"
     session['fav_jobs'] = session['fav_courses'] = session['selected'] = session['not_selected'] = []
     t4g_database.sessions.insert_one(session)

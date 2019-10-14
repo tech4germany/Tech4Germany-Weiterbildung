@@ -31,7 +31,8 @@ export class Option extends React.Component {
 	}
 
 	render() {
-		const title = this.props.title[0].toUpperCase() + this.props.title.slice(1)
+		console.log(this.props.title.title)
+		const title = this.props.title.title[0].toUpperCase() + this.props.title.title.slice(1)
 
 		return (
 			<Grid item xs={12} sm={6} md={this.props.gridM}>
@@ -45,7 +46,7 @@ export class Option extends React.Component {
 			          {title}
 			        </Typography>
 			        <Typography variant="body2" component="p">
-			          Mehr Infos?
+			          {this.props.title.info}
 			        </Typography>
 			    	</CardContent>
 			    </CardActionArea>
