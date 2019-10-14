@@ -96,7 +96,7 @@ def load_init_options(dist_matrix, entities, selected_titles):
             selected_titles = np.random.choice(selected_titles, 2, replace=False)
 
         # suggest one job within a rather close distance each for both of the given embeddings
-        options = [_find_close_point(dist_matrix, entities, origin) for origin in selected_titles]
+        options = [entities[_find_close_point(dist_matrix, entities, origin)] for origin in selected_titles]
 
     return options
 
