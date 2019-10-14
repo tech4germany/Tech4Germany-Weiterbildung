@@ -17,21 +17,22 @@ export class Option extends React.Component {
 		this.handleClick = this.handleClick.bind(this);
 	}
 
-	componentDidUpdate() {
-		this.state.selected = false;
+	componentDidMount() {
+		//this.state.selected = false;
+		this.setState({
+			selected: false
+		});
 	}
 
 	handleClick() {
 		const title = this.props.title;
-		this.props.onClick(title)
-		// color indication
+		this.props.onClick(title);
 		this.setState({
 			selected: !this.state.selected
 		});
 	}
 
 	render() {
-		console.log(this.props.title.title)
 		const title = this.props.title.title[0].toUpperCase() + this.props.title.title.slice(1)
 
 		return (

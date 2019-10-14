@@ -35,7 +35,14 @@ export class Pablov extends React.Component {
 		if (this.hasMultiOptions()) {
 			if (!this.state.selected.includes(title)) {
 				this.setState({
-					selected: this.state.selected.concat(title)	
+					selected: this.state.selected.concat(title)
+				});
+			}
+			else {
+				this.setState({
+					selected: this.state.selected.filter(function(option) {
+						return option !== title
+					})
 				});
 			}
 		} else {
@@ -45,7 +52,7 @@ export class Pablov extends React.Component {
 
 	sendSelections(titles=this.state.selected) {
 		console.log(titles, this.state.optionsType);
-		const response = fetch('http://0.0.0.0:3001/select', {
+		fetch('http://0.0.0.0:3001/select', {
 			method: 'POST',
 			body: JSON.stringify({
 				uuid: this.state.uuid,
@@ -82,18 +89,19 @@ export class Pablov extends React.Component {
 
 	render() {
 		const gridM = this.state.options.length > 2 ? 3 : 6;
-		const type = this.state.options.length > 2 ? 'multi' : 'dual';
+		//const type = this.state.options.length > 2 ? 'multi' : 'dual';
 
 		return (
 			<React.Fragment>
-				<Grid container spacing={2}>
-					<Grid item xs={12} justify="center">
+				<Grid container spacing={2}  justify="center">
+					<Grid item xs={12}>
 						<Typography variant="h4" component="h3" gutterBottom>
 							Was interessiert Dich mehr?
 						</Typography>
 					</Grid>
 					{this.state.options.map(title => 
-						<Option 
+						<Option
+							key={title.title}
 							title={title} 
 							type={this.state.optionsType} 
 							gridM={gridM} 
