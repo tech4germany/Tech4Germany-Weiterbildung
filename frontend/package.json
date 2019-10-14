@@ -1,20 +1,13 @@
 {
-  "name": "frontend",
+  "name": "frontend_f",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^4.4.2",
-    "@material-ui/icons": "^4.4.1",
-    "autosuggest-highlight": "^3.1.1",
-    "axios": "^0.19.0",
-    "material-ui-icons": "^1.0.0-beta.36",
-    "material-ui-search-bar": "^1.0.0-beta.13",
-    "react": "^16.9.0",
-    "react-autosuggest": "^9.4.3",
-    "react-dom": "^16.9.0",
-    "react-router-dom": "^5.0.1",
-    "react-scripts": "3.1.1",
-    "react-window": "^1.8.5"
+    "@material-ui/core": "^4.5.0",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
+    "react-scripts": "3.2.0",
+    "typeface-roboto": "0.0.75"
   },
   "scripts": {
     "start": "react-scripts start",
