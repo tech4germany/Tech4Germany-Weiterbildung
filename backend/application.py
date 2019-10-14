@@ -168,8 +168,7 @@ def like_item():
     if request.get_json('option_type')['option_type'] == "Kurse":
         session['fav_courses'].append(title)
     elif request.get_json('option_type')['option_type'] == "Berufe":
-        print("in session")
-        session['fav_jobs'].append(title)
+        session['fav_jobs'].append(title['title'])
 
     t4g_database.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
     return 200 if not application.debug else json.dumps(session, default=json_util.default)
