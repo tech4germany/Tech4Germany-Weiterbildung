@@ -133,9 +133,9 @@ def get_options(entities, embeddings, selected, not_selected, neighborhood_size 
     Returns:
         list<String>, list<String> -- suggested options and jobs
     """
-    selected_indices = [entities.index(x['title']) for x in selected]
+    selected_indices = [entities.index(x) for x in selected]
     selected_features = [embeddings[x] for x in selected_indices]
-    not_selected_indices = [entities.index(x['title']) for x in not_selected]
+    not_selected_indices = [entities.index(x) for x in not_selected]
     sum_selected = np.zeros(len(selected_features[0]))
 
     # calculate the averaged point in the embedding space
