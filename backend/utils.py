@@ -80,7 +80,7 @@ def load_init_options(dist_matrix, entities, selected_titles):
     Returns:
         list<String> -- two initial titles
     """
-    if len(job_titles) == 1:
+    if len(selected_titles) == 1:
         # suggest two jobs within a rather close distance to the given embedding
         option_1 = _find_close_point(dist_matrix, entities, selected_titles[0])
         option_2 = _find_close_point(dist_matrix, entities, selected_titles[0])

@@ -14,7 +14,7 @@ export class Pablov extends React.Component {
 			options: [], //['Wirtschaft, Verwaltung', 'Gesundheit', 'Kunst, Kultur, Gestaltung', 'Landwirtschaft, Natur', 'Metall, Maschinenbau', 'IT, Computer', 'Naturwissenschaften', 'Malen nach Zahlen'],
 			optionsType : 'Branchen',
 			selected: [],
-			results: ['Maurer', 'Schreiner', 'Fachangestellter für Wurst']
+			jobs: []
 		};
 		this.selectOption = this.selectOption.bind(this);
 		this.sendSelections = this.sendSelections.bind(this);
@@ -24,7 +24,8 @@ export class Pablov extends React.Component {
 		fetch('http://0.0.0.0:3001/init').then(res => res.json())
 		.then((data => this.setState({
 				uuid: data.uuid,
-				options: data.options
+				options: data.options,
+				optionsType: data.option_type
 			})
 		));
 	}
@@ -38,28 +39,41 @@ export class Pablov extends React.Component {
 				});
 			}
 		} else {
-			this.sendSelections(title);
+			this.sendSelections([title]);
 		}
 	}
 
 	sendSelections(titles=this.state.selected) {
-		console.log(titles);
+		console.log(titles, this.state.optionsType);
 		const response = fetch('http://0.0.0.0:3001/select', {
 			method: 'POST',
 			body: JSON.stringify({
 				uuid: this.state.uuid,
-				option: titles
+				options: titles,
+				option_type: this.state.optionsType
 			}),
 			headers: {
 				'Content-Type': 'application/json'
 			}
 		})
 		.then(res => res.json())
-		.then((data => this.setState({options: data.options})));
+		.then((data => this.setState({
+			options: data.options,
+			jobs: data.jobs,
+			optionsType: data.option_type
+		})));
 	}
 
 	hasMultiOptions() {
 		if (this.state.options.length > 2) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	hasJobs() {
+		if (typeof this.state.jobs !== 'undefined' && this.state.jobs.length > 0) {
 			return true;
 		} else {
 			return false;
@@ -84,12 +98,11 @@ export class Pablov extends React.Component {
 							type={this.state.optionsType} 
 							gridM={gridM} 
 							onClick={this.selectOption}
-							type={type}
 						/>
 					)}
 				</Grid>
 				{this.hasMultiOptions() && <Submit onClick={this.sendSelections}/>}
-				<JobResults jobs={this.state.results}/>
+				{this.hasJobs() && <JobResults jobs={this.state.jobs}/>}
 			</React.Fragment>
 		);
 	}

@@ -17,15 +17,17 @@ export class Option extends React.Component {
 		this.handleClick = this.handleClick.bind(this);
 	}
 
+	componentDidUpdate() {
+		this.state.selected = false;
+	}
+
 	handleClick() {
 		const title = this.props.title;
 		this.props.onClick(title)
 		// color indication
-		if (this.props.type === 'multi') {
-			this.setState({
-				selected: !this.state.selected
-			});
-		}
+		this.setState({
+			selected: !this.state.selected
+		});
 	}
 
 	render() {
