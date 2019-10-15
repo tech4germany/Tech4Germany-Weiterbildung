@@ -34,6 +34,20 @@ export class LikeButton extends React.Component{
 		});
 	}
 
+	send_unlike() {
+		fetch(new URL('unlike', process.env.REACT_APP_API_URL), {
+			method: 'POST',
+			body: JSON.stringify({
+				uuid: this.props.uuid,
+				options: this.props.title,
+				option_type: this.props.type
+			}),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+	}
+
 	render() {
 		return(
 			<Button size="small" onClick={this.handleClick}>
