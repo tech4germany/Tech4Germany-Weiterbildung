@@ -26,7 +26,7 @@ def tsne_features(jobs):
     plt.title('Repräsentationen von Berufstiteln anhand von Embeddings der Tätigkeitsbeschreibungen')
     plt.show()
     print('========== Done Fitting T-SNE ==========')
-
+    
 def main():
     jobs = dict()
     line_nr = 0

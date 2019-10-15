@@ -25,16 +25,18 @@ def build_corpus():
     corpus = []
     titles = []
     for i, course in enumerate(courses):
+        if i % 1000 == 0: print(f'{i}/{size}')
         indices = []
         titles.append(course['meta']['title'].replace(',',''))
         text = course['Inhalte']['text'].strip()
         text = ' '.join(text.split())
         for index in range(len(text)):
-            if text[index].isupper() and index > 1 and text[index-1] is not " " and text[index-2] is not " ":
-                if not text.endswith(text[index]) and text[index+1] is not " ":
+            if text[index].isupper() and index > 1 and text[index-1] is not " " and text[index-2] is not " "and not text.endswith(text[index]) and text[index+1] is not " ":
                     indices.append(index)
+
         for index in reversed(indices):
             text = text[:index] + " " + text[index:]
+
         text = re.sub('[^A-Za-zä-üÄ-Ü]', ' ', text)
         text = text.lower()
         tokenized_text = word_tokenize(text)
@@ -43,19 +45,19 @@ def build_corpus():
             stemmed_word = stemmer.stem(word).strip()
             if stemmed_word not in stopwords.words('german') and word not in stopwords.words('german') and len(stemmed_word) > 2 and stemmed_word not in ['it','3d']:
                 words.append(stemmed_word)
+
         corpus.append(' '.join(words))
-        if i % 1000 == 0: print(f'{i}/{size}')
     return corpus, titles
 
 if __name__ == "__main__":
     corpus, titles = build_corpus()
     vectorizer = TfidfVectorizer(max_features=10000)
     X = vectorizer.fit_transform(corpus)
-    print(X)
 
     with open('output.csv', 'w+') as outf:
         for feature_vec, title in zip(X, titles):
             feature_vec = [str(x) for x in feature_vec.toarray().flatten()]
             outf.write(f'{title},{",".join(feature_vec)}\n')
+            
     with open('features.txt', "w+") as outfeat:
         outfeat.write(" ".join(vectorizer.get_feature_names()))
