@@ -21,7 +21,7 @@ export class LikeButton extends React.Component{
 	}
 
 	send_like() {
-		fetch(process.env.REACT_APP_API_URL + 'like', {
+		fetch(new URL('like', process.env.REACT_APP_API_URL), {
 			method: 'POST',
 			body: JSON.stringify({
 				uuid: this.props.uuid,

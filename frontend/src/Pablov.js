@@ -22,7 +22,7 @@ export class Pablov extends React.Component {
 	}
 
 	componentDidMount() {
-		fetch(process.env.REACT_APP_API_URL + 'init').then(res => res.json())
+		fetch(new URL('init', process.env.REACT_APP_API_URL)).then(res => res.json())
 		.then((data => this.setState({
 				uuid: data.uuid,
 				options: data.options,
@@ -52,7 +52,7 @@ export class Pablov extends React.Component {
 
 	sendSelections(titles=this.state.selected) {
 		this.increaseJobsCounter();
-		fetch(process.env.REACT_APP_API_URL + 'select', {
+		fetch(new URL('select', process.env.REACT_APP_API_URL), {
 			method: 'POST',
 			body: JSON.stringify({
 				uuid: this.state.uuid,
