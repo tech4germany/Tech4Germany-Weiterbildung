@@ -14,10 +14,15 @@ export class LikeButton extends React.Component{
 	}
 
 	handleClick() {
+		if(!this.state.liked) {
+			this.send_like();
+		}
+		else {
+			this.send_unlike();
+		}
 		this.setState({
 			liked: !this.state.liked
 		})
-		this.send_like();
 	}
 
 	send_like() {
