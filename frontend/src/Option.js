@@ -45,8 +45,20 @@ export class Option extends React.Component {
 		this.props.likeHandler(title);
 	}
 
+	reduceToFirstSetence(string) {
+		if (string.length > 0) {
+			string = string.replace(/bzw\./, "beziehungsweise");
+			string = string.replace(/z\.B\./, "zum Beispiel");
+			var sentence = string.match(/[^\.!?]+[\.!?]+/)[0];
+			sentence = sentence.length > 200 ? (sentence.slice(0,200) + '...') : sentence;
+			return sentence;
+		} 
+	}
+
 	render() {
 		const title = this.props.title.title[0].toUpperCase() + this.props.title.title.slice(1)
+		const info = this.reduceToFirstSetence(this.props.title.info)
+
 		return (
 			<Grid item xs={12} sm={6} md={this.props.gridM}>
 				<Card style={{ backgroundColor: this.state.selected ? '#6DECAF' : 'white' }}>
@@ -58,8 +70,8 @@ export class Option extends React.Component {
 		        	<Typography variant="h4" component="h2" style={{ overflowWrap: 'break-word' }}>
 			          {title}
 			        </Typography>
-			        <Typography variant="body2" component="p">
-			          {this.props.title.info}
+			        <Typography variant="body2" component="p" style={{ marginTop: 10 }}>
+			          {info}
 			        </Typography>
 			    	</CardContent>
 			    </CardActionArea>
