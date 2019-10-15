@@ -49,7 +49,7 @@ export class Option extends React.Component {
 			<Grid item xs={12} sm={6} md={this.props.gridM}>
 				<Card style={{ backgroundColor: this.state.selected ? '#6DECAF' : 'white' }}>
 					<CardActionArea onClick={this.handleClick}>
-						<CardContent style={{ minHeight: 140 }}>
+						<CardContent style={{ minHeight: 200 }}>
 							<Typography color="textSecondary" gutterBottom>
 		          	{this.props.type}
 		        	</Typography>

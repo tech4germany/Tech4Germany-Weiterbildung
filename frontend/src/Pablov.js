@@ -31,7 +31,6 @@ export class Pablov extends React.Component {
 		));
 	}
 
-	// does not deselect 
 	selectOption(title) {
 		if (this.hasMultiOptions()) {
 			if (!this.state.selected.includes(title)) {
@@ -52,6 +51,7 @@ export class Pablov extends React.Component {
 	}
 
 	sendSelections(titles=this.state.selected) {
+		this.increaseJobsCounter();
 		fetch(process.env.REACT_APP_API_URL + 'select', {
 			method: 'POST',
 			body: JSON.stringify({
@@ -68,8 +68,9 @@ export class Pablov extends React.Component {
 			options: data.options,
 			jobs: data.jobs,
 			optionsType: data.option_type,
-			jobsCounter: data.option_type === 'Berufe' ? this.state.jobsCounter + 1 : this.state.jobsCounter
+			jobsCounter: this.state.jobsCounter > 3 ? 5 : this.state.jobsCounter
 		})));
+
 	}
 
 	hasMultiOptions() {
@@ -78,6 +79,12 @@ export class Pablov extends React.Component {
 		} else {
 			return false;
 		}
+	}
+
+	increaseJobsCounter() {
+		this.setState({
+			jobsCounter: this.state.jobsCounter + 1 
+		});
 	}
 
 	render() {

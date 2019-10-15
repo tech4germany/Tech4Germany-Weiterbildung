@@ -10,7 +10,7 @@ import StarIcon from '@material-ui/icons/Star';
 
 export class JobResults extends React.Component {
 	hasJobs() {
-		if (typeof this.props.jobs !== 'undefined' && this.props.jobs.length > 0 && this.props.counter > 3) {
+		if (typeof this.props.jobs !== 'undefined' && this.props.jobs.length > 0 && this.props.counter > 4) {
 			return true;
 		} else {
 			return false;
