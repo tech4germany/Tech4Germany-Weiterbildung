@@ -198,7 +198,7 @@ def like_item():
 @application.route("/unlike", methods=['POST'])
 def unlike_item():
     """
-    Like an item (job or course)
+    Unlike an item (job or course)
     
     Returns:
         int -- status code
