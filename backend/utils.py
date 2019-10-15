@@ -4,9 +4,11 @@ import json
 import numpy as np
 import os
 from scipy import spatial
+import time
 
 def load_jobs_data(file_name):
-    """Loads entities and embeddings from the given csv file
+    """
+    Load entities and embeddings from the given csv file
     
     Arguments:
         file_name {String} -- path to the given csv file
@@ -27,7 +29,8 @@ def load_jobs_data(file_name):
 
 
 def load_dists(file_path):
-    """Loads a distance matrix from the given csv file
+    """
+    Load a distance matrix from the given csv file
     
     Arguments:
         file_path {String} -- path to the given csv file
@@ -58,7 +61,8 @@ def load_categories(database):
     return category_names
 
 def load_related_job(database, job_id):
-    """Loads a job given a job id
+    """
+    Load a job given a job id
     
     Arguments:
         database {pymongo.database.Database} -- the given database
@@ -70,7 +74,8 @@ def load_related_job(database, job_id):
     return database.jobs.find_one({'job_id': job_id})
 
 def load_init_options(dist_matrix, entities, selected_titles):
-    """Loads the initial options after select one or more categories
+    """
+    Load the initial options after select one or more categories
     
     Arguments:
         dist_matrix {list<list<float>>} -- pairwise cosine distance matrix
@@ -101,7 +106,8 @@ def load_init_options(dist_matrix, entities, selected_titles):
     return options
 
 def _find_close_point(dist_matrix, entities, selected_title, neighborhood_size = 100, skip_range = 1):
-    """Finds a close point relativ to the given job title
+    """
+    Find a close point relativ to the given job title
     
     Arguments:
         dist_matrix {list<list<float>>} -- pairwise cosine distance matrix
@@ -116,7 +122,8 @@ def _find_close_point(dist_matrix, entities, selected_title, neighborhood_size =
     return np.random.choice(neighbors, 1)[0]
 
 def get_options(entities, embeddings, selected, not_selected, neighborhood_size = 100, num_pts = 2, skip_range = 10, num_jobs = 5):
-    """Gets two k-nearest neighbors of all selected entities
+    """
+    Get two k-nearest neighbors of all selected entities
     
     Arguments:
         entities {list<String>} -- all titles
@@ -146,8 +153,14 @@ def get_options(entities, embeddings, selected, not_selected, neighborhood_size 
 
     # calculate the distances of all embeddings to the averaged point
     dists = []
+    start = time.time()
     for i in range(len(embeddings)):
-        dists.append(spatial.distance.cosine(np.array(embeddings[i]), avg_selected))
+        if i % 3 == 0:
+            dists.append(spatial.distance.cosine(np.array(embeddings[i]), avg_selected))
+        else:
+            dists.append(2)
+    end = time.time()
+    print(f'Time for calculating pairwise distance {end - start} s.')
     jobs = [entities[x] for x in np.argpartition(dists, num_jobs)[:num_jobs]]
     try:
         neighbors = np.argpartition(dists, neighborhood_size)[skip_range:neighborhood_size]
@@ -159,7 +172,8 @@ def get_options(entities, embeddings, selected, not_selected, neighborhood_size 
         return [], jobs
 
 def get_job_info(database, title):
-    """Gets the information details for a given job title
+    """
+    Get the information details for a given job title
     
     Arguments:
         database {pymongo.database.Database} -- the given database object
@@ -172,18 +186,18 @@ def get_job_info(database, title):
         job = database.jobs.find_one({"title": title})
         return job['info']
     except:
-        print(title)
         return ""
 
 def get_category_info(database, title):
-    """Gets the information details for a given job title
+    """
+    Get the information details for a given job title
     
     Arguments:
         database {pymongo.database.Database} -- the given database object
-        title {String} -- the job title
+        title {String} -- the category title
     
     Returns:
-        String -- [description]
+        String -- category information 
     """
     try:
         category = database.categories.find_one({"category_name": title})
