@@ -20,22 +20,6 @@ CORS(application)
 cache = Cache(application, config={'CACHE_TYPE': 'simple'})
 cache.init_app(application)
 
-mongo_client = ""
-job_entities = job_embeddings = dist_matrix = []
-
-
-@application.before_first_request
-def init_app():
-    global mongo_client, job_entities, job_embeddings, dist_matrix
-
-    # connect to database
-    connection_string = os.environ.get("DATABASE_URL")
-    mongo_client = MongoClient(connection_string)
-
-    # load embeddings and entities
-    job_entities, job_embeddings = utils.load_jobs_data('./data/job_embeddings.csv')
-    dist_matrix = utils.load_dists('./data/jobs_cosine_distances.csv')
-
 @application.route("/courses/all", methods=['GET'])
 @cache.cached(timeout=50)
 def list_all_courses():
@@ -270,6 +254,14 @@ if __name__ == "__main__":
     # load environment variables
     env_path = os.path.join(os.path.dirname(__file__), '.env')
     load_dotenv(dotenv_path=env_path)
+
+    # connect to database
+    connection_string = os.environ.get("DATABASE_URL")
+    mongo_client = MongoClient(connection_string)
+
+    # load embeddings and entities
+    job_entities, job_embeddings = utils.load_jobs_data('./data/job_embeddings.csv')
+    dist_matrix = utils.load_dists('./data/jobs_cosine_distances.csv')
 
     # start application
     # NOTE not to use debug mode in production
