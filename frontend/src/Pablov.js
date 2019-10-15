@@ -23,7 +23,8 @@ export class Pablov extends React.Component {
 	}
 
 	componentDidMount() {
-		fetch('http://0.0.0.0:3001/init').then(res => res.json())
+		console.log(process.env.REACT_APP_API_URL);
+		fetch(process.env.REACT_APP_API_URL + 'init').then(res => res.json())
 		.then((data => this.setState({
 				uuid: data.uuid,
 				options: data.options,
@@ -53,7 +54,7 @@ export class Pablov extends React.Component {
 	}
 
 	like(title) {
-		fetch(process.env.REACT_APP_API_URL + '/like', {
+		fetch(process.env.REACT_APP_API_URL + 'like', {
 			method: 'POST',
 			body: JSON.stringify({
 				uuid: this.state.uuid,
@@ -67,7 +68,7 @@ export class Pablov extends React.Component {
 	}
 
 	sendSelections(titles=this.state.selected) {
-		fetch(process.env.REACT_APP_API_URL + '/select', {
+		fetch(process.env.REACT_APP_API_URL + 'select', {
 			method: 'POST',
 			body: JSON.stringify({
 				uuid: this.state.uuid,
