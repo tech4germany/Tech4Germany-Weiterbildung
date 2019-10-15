@@ -12,11 +12,9 @@ export class Option extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			selected: false,
-			liked: false
+			selected: false
 		};
 		this.handleClick = this.handleClick.bind(this);
-		this.likeOption = this.likeOption.bind(this);
 	}
 
 	componentDidMount() {
@@ -29,18 +27,8 @@ export class Option extends React.Component {
 		const title = this.props.title;
 		this.props.onClick(title);
 		this.setState({
-			selected: !this.state.selected,
-			liked: this.state.liked
+			selected: !this.state.selected
 		});
-	}
-
-	likeOption() {
-		this.setState( {
-			selected: this.state.selected,
-			liked: !this.state.liked
-		});
-		const title = this.props.title;
-		this.props.likeHandler(title);
 	}
 
 	reduceToFirstSetence(string) {
@@ -74,7 +62,12 @@ export class Option extends React.Component {
 			    	</CardContent>
 			    </CardActionArea>
 					<CardActions>
-						<LikeButton liked={this.state.liked} onClick={this.likeOption}/>
+						<LikeButton 
+							onClick={this.likeOption}
+							title={this.props.title}
+							uuid={this.props.uuid}
+							type={this.props.type}
+						/>
 		      </CardActions>
 				</Card>
 			</Grid>

@@ -17,7 +17,6 @@ export class Pablov extends React.Component {
 			jobs: [],
 			jobsCounter: 0
 		};
-		this.like = this.like.bind(this);
 		this.selectOption = this.selectOption.bind(this);
 		this.sendSelections = this.sendSelections.bind(this);
 	}
@@ -50,20 +49,6 @@ export class Pablov extends React.Component {
 		} else {
 			this.sendSelections([title]);
 		}
-	}
-
-	like(title) {
-		fetch(process.env.REACT_APP_API_URL + 'like', {
-			method: 'POST',
-			body: JSON.stringify({
-				uuid: this.state.uuid,
-				options: title,
-				option_type: this.state.optionsType
-			}),
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		});
 	}
 
 	sendSelections(titles=this.state.selected) {
@@ -113,12 +98,16 @@ export class Pablov extends React.Component {
 							type={this.state.optionsType} 
 							gridM={gridM} 
 							onClick={this.selectOption}
-							likeHandler={this.like}
+							uuid={this.state.uuid}
 						/>
 					)}
 				</Grid>
 				{this.hasMultiOptions() && <Submit onClick={this.sendSelections}/>}
-				<JobResults jobs={this.state.jobs} counter={this.state.jobsCounter}/>
+				<JobResults 
+					jobs={this.state.jobs} 
+					counter={this.state.jobsCounter}
+					likeHandler={this.like}
+				/>
 			</React.Fragment>
 		);
 	}

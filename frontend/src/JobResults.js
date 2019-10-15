@@ -37,7 +37,7 @@ export class JobResults extends React.Component {
 						{this.props.jobs.map(job => 
 							<ListItem key={job} button>
 			          <ListItemText primary={<Typography variant="body1">{job}</Typography>}/>
-			          <LikeButton/>
+			          <LikeButton onClick={this.props.likeHandler}/>
 			        </ListItem>
 						)}
 		      </List>
