@@ -23,7 +23,6 @@ export class Pablov extends React.Component {
 	}
 
 	componentDidMount() {
-		console.log(process.env.REACT_APP_API_URL);
 		fetch(process.env.REACT_APP_API_URL + 'init').then(res => res.json())
 		.then((data => this.setState({
 				uuid: data.uuid,
@@ -103,7 +102,7 @@ export class Pablov extends React.Component {
 			<React.Fragment>
 				<Grid container spacing={2}  justify="center">
 					<Grid item xs={12}>
-						<Typography variant="h4" component="h3" gutterBottom>
+						<Typography variant="h4" gutterBottom>
 							Was interessiert Dich mehr?
 						</Typography>
 					</Grid>

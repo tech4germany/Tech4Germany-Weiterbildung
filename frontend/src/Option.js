@@ -1,14 +1,12 @@
 import React from 'react';
+import { LikeButton } from './LikeButton'
 // Material
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardActionArea from '@material-ui/core/CardActionArea';
-import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
-import StarIcon from '@material-ui/icons/Star';
 
 export class Option extends React.Component {
 	constructor(props) {
@@ -18,7 +16,7 @@ export class Option extends React.Component {
 			liked: false
 		};
 		this.handleClick = this.handleClick.bind(this);
-		this.handleLike = this.handleLike.bind(this);
+		this.likeOption = this.likeOption.bind(this);
 	}
 
 	componentDidMount() {
@@ -36,7 +34,7 @@ export class Option extends React.Component {
 		});
 	}
 
-	handleLike() {
+	likeOption() {
 		this.setState( {
 			selected: this.state.selected,
 			liked: !this.state.liked
@@ -76,7 +74,7 @@ export class Option extends React.Component {
 			    	</CardContent>
 			    </CardActionArea>
 					<CardActions>
-						<Button size="small" onClick={() => this.handleLike()}>{this.state.liked ? <StarIcon color={"primary"}/> : <StarBorderIcon/>} Merken</Button>
+						<LikeButton liked={this.state.liked} onClick={this.likeOption}/>
 		      </CardActions>
 				</Card>
 			</Grid>
