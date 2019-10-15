@@ -20,6 +20,22 @@ CORS(application)
 cache = Cache(application, config={'CACHE_TYPE': 'simple'})
 cache.init_app(application)
 
+mongo_client = ""
+job_entities = job_embeddings = dist_matrix = []
+
+
+@application.before_first_request
+def init_app():
+    global mongo_client, job_entities, job_embeddings, dist_matrix
+
+    # connect to database
+    connection_string = os.environ.get("DATABASE_URL")
+    mongo_client = MongoClient(connection_string)
+
+    # load embeddings and entities
+    job_entities, job_embeddings = utils.load_jobs_data('./data/job_embeddings.csv')
+    dist_matrix = utils.load_dists('./data/jobs_cosine_distances.csv')
+
 @application.route("/courses/all", methods=['GET'])
 @cache.cached(timeout=50)
 def list_all_courses():
@@ -29,9 +45,6 @@ def list_all_courses():
     Returns:
         [type] -- [description]
     """
-    # connect to database
-    connection_string = os.getenv("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
-    mongo_client = MongoClient(connection_string)
     courses_collection = list(mongo_client.test.courses.find({}))
     return json.dumps(courses_collection, default=json_util.default)
 
@@ -47,9 +60,6 @@ def list_courses(limit):
     Returns:
         JSON -- the first {limit} courses
     """
-    # connect to database
-    connection_string = os.getenv("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
-    mongo_client = MongoClient(connection_string)
     courses_collection = list(mongo_client.test.courses.find({}).limit(limit))
     return json.dumps(courses_collection, default=json_util.default)
 
@@ -65,9 +75,6 @@ def find_all_courses_with_title(title):
     Returns:
         JSON -- courses matching a given title
     """
-    # connect to database
-    connection_string = os.getenv("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
-    mongo_client = MongoClient(connection_string)
     courses_collection = list(mongo_client.test.courses.find({ 'title': { '$regex': re.compile(f'.*{title}.*', re.IGNORECASE) }}))
     return json.dumps(courses_collection, default=json_util.default)
 
@@ -84,9 +91,6 @@ def find_courses(title, limit):
     Returns:
         JSON -- a given amount of courses matching the given title
     """
-    # connect to database
-    connection_string = os.getenv("DATABASE_URL")
-    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
     courses_collection = list(mongo_client.test.courses.find({ 'title': { '$regex': f'.*{title}.*' }}).limit(limit))
     return json.dumps(courses_collection, default=json_util.default)
 
@@ -101,9 +105,6 @@ def find_course(id):
     Returns:
         JSON -- the matching course
     """
-    # connect to database
-    connection_string = os.getenv("DATABASE_URL")
-    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
     course = mongo_client.test.courses.find_one({'_id': ObjectId(id)})
     return json.dumps(course, default=json_util.default)
 
@@ -116,9 +117,6 @@ def set_option():
         JSON -- a session including two generated options
     """
     _uuid = request.get_json('uuid')['uuid']
-    # connect to database
-    connection_string = os.getenv("DATABASE_URL")
-    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
     session = mongo_client.test.sessions.find_one({'uuid': uuid.UUID(_uuid).hex})
     if request.get_json('option_type')['option_type'] == "Berufe":
         # store selected job option and send the session information with generated options
@@ -176,9 +174,6 @@ def init_session():
     """
     session = {}
     session['uuid'] = uuid.uuid4().hex
-    # connect to database
-    connection_string = os.getenv("DATABASE_URL")
-    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
     options = utils.load_categories(mongo_client.test)
     option_objects = []
     for option in options:
@@ -202,19 +197,41 @@ def like_item():
     """
     _uuid = request.get_json('uuid')['uuid']
     title = request.get_json('options')['options']
-
-    # connect to database
-    connection_string = os.getenv("DATABASE_URL")
-    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
     session = mongo_client.test.sessions.find_one({"uuid": _uuid})
 
     # add liked course
     if request.get_json('option_type')['option_type'] == "Kurse":
-        session['fav_courses'].append(title)
+        session['fav_courses'].append(title['title'])
     
     # add liked job
     elif request.get_json('option_type')['option_type'] == "Berufe":
         session['fav_jobs'].append(title['title'])
+
+    # update session
+    mongo_client.test.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
+    return 200 if not application.debug else json.dumps(session, default=json_util.default)
+
+@application.route("/unlike", methods=['POST'])
+def unlike_item():
+    """
+    Like an item (job or course)
+    
+    Returns:
+        int -- status code
+    """
+    _uuid = request.get_json('uuid')['uuid']
+    title = request.get_json('options')['options']
+    session = mongo_client.test.sessions.find_one({"uuid": _uuid})
+
+    # add liked course
+    if request.get_json('option_type')['option_type'] == "Kurse":
+        if title in session['fav_courses']:
+            session['fav_courses'].remove(title['title'])
+    
+    # add liked job
+    elif request.get_json('option_type')['option_type'] == "Berufe":
+        if title in session['fav_jobs']:
+            session['fav_jobs'].remove(title['title'])
 
     # update session
     mongo_client.test.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
@@ -232,9 +249,7 @@ def add_course():
     course['title'] = request.get_json('title')['title']
     course['info'] = request.get_json('info')['info']
     # TODO are additional fields required?
-    # connect to database
-    connection_string = os.getenv("DATABASE_URL")
-    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
+
     result = mongo_client.test.courses.insert_one(course)
     return 200 if not application.debug else result
 
@@ -248,22 +263,14 @@ def delete_course():
     """
     # NOTE that deleting only according to the title might not be save
     # TODO use multiple identifers
-    # connect to database
-    connection_string = os.getenv("DATABASE_URL")
-    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
     result = mongo_client.test.courses.delete_one({"title": request.get_json('title')['title']})
     return 200 if not application.debug else result
 
 if __name__ == "__main__":
-
     # load environment variables
     env_path = os.path.join(os.path.dirname(__file__), '.env')
     load_dotenv(dotenv_path=env_path)
 
-    # load embeddings and entities
-    job_entities, job_embeddings = utils.load_jobs_data('./data/job_embeddings.csv')
-    dist_matrix = utils.load_dists('./data/jobs_cosine_distances.csv')
-
     # start application
     # NOTE not to use debug mode in production
-    application.run(debug=True, host="0.0.0.0", port=os.getenv("BACKEND_PORT"))
+    application.run(debug=True, host="0.0.0.0", port=os.environ.get("BACKEND_PORT"))
