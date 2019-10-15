@@ -1,5 +1,9 @@
 # T4G-BMAS
 
+## Demo
+
+[Try it!](http://t4g-2019-bmas.s3-website.us-east-2.amazonaws.com)
+
 ## Specs
 
 - Backend: Flask
