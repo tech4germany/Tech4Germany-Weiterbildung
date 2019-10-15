@@ -7,3 +7,4 @@ baems.pem
 .vscode/
 *.pem
 */__pycache__
+frontend/.env

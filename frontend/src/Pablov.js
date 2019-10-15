@@ -14,7 +14,8 @@ export class Pablov extends React.Component {
 			options: [], //['Wirtschaft, Verwaltung', 'Gesundheit', 'Kunst, Kultur, Gestaltung', 'Landwirtschaft, Natur', 'Metall, Maschinenbau', 'IT, Computer', 'Naturwissenschaften', 'Malen nach Zahlen'],
 			optionsType : 'Branchen',
 			selected: [],
-			jobs: []
+			jobs: [],
+			jobsCounter: 0
 		};
 		this.like = this.like.bind(this);
 		this.selectOption = this.selectOption.bind(this);
@@ -52,7 +53,7 @@ export class Pablov extends React.Component {
 	}
 
 	like(title) {
-		fetch('http://0.0.0.0:3001/like', {
+		fetch(process.env.REACT_APP_API_URL + '/like', {
 			method: 'POST',
 			body: JSON.stringify({
 				uuid: this.state.uuid,
@@ -66,8 +67,7 @@ export class Pablov extends React.Component {
 	}
 
 	sendSelections(titles=this.state.selected) {
-		console.log(titles, this.state.optionsType);
-		fetch('http://0.0.0.0:3001/select', {
+		fetch(process.env.REACT_APP_API_URL + '/select', {
 			method: 'POST',
 			body: JSON.stringify({
 				uuid: this.state.uuid,
@@ -82,7 +82,8 @@ export class Pablov extends React.Component {
 		.then((data => this.setState({
 			options: data.options,
 			jobs: data.jobs,
-			optionsType: data.option_type
+			optionsType: data.option_type,
+			jobsCounter: data.option_type === 'Berufe' ? this.state.jobsCounter + 1 : this.state.jobsCounter
 		})));
 	}
 
@@ -94,17 +95,8 @@ export class Pablov extends React.Component {
 		}
 	}
 
-	hasJobs() {
-		if (typeof this.state.jobs !== 'undefined' && this.state.jobs.length > 0) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	render() {
 		const gridM = this.state.options.length > 2 ? 3 : 6;
-		//const type = this.state.options.length > 2 ? 'multi' : 'dual';
 
 		return (
 			<React.Fragment>
@@ -126,7 +118,7 @@ export class Pablov extends React.Component {
 					)}
 				</Grid>
 				{this.hasMultiOptions() && <Submit onClick={this.sendSelections}/>}
-				{this.hasJobs() && <JobResults jobs={this.state.jobs}/>}
+				<JobResults jobs={this.state.jobs} counter={this.state.jobsCounter}/>
 			</React.Fragment>
 		);
 	}
