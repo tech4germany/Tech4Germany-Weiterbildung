@@ -119,6 +119,7 @@ def set_option():
             option_object['title'] = option
             option_object['info'] = utils.get_job_info(mongo_client.test, option)
             option_objects.append(option_object)
+
         session['options'] = option_objects
         session['final'] =  0 if len(session['options']) > 0 else 1
 
@@ -141,6 +142,7 @@ def set_option():
             option_object['title'] = option
             option_object['info'] = utils.get_job_info(mongo_client.test, option)
             option_objects.append(option_object)
+
         session['options'] = option_objects
         session['option_type'] = "Berufe"
         mongo_client.test.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
@@ -165,6 +167,7 @@ def init_session():
             option_object['title'] = option
             option_object['info'] = utils.get_category_info(mongo_client.test, option)
             option_objects.append(option_object)
+
     session['options'] = option_objects
     session['option_type'] = "Branchen"
     session['fav_jobs'] = session['fav_courses'] = session['selected'] = session['not_selected'] = []
@@ -207,12 +210,12 @@ def unlike_item():
     title = request.get_json('options')['options']
     session = mongo_client.test.sessions.find_one({"uuid": _uuid})
 
-    # add liked course
+    # remove unliked course
     if request.get_json('option_type')['option_type'] == "Kurse":
         if title in session['fav_courses']:
             session['fav_courses'].remove(title['title'])
     
-    # add liked job
+    # remove unliked job
     elif request.get_json('option_type')['option_type'] == "Berufe":
         if title in session['fav_jobs']:
             session['fav_jobs'].remove(title['title'])
@@ -266,3 +269,4 @@ if __name__ == "__main__":
     # start application
     # NOTE not to use debug mode in production
     application.run(debug=True, host="0.0.0.0", port=os.environ.get("BACKEND_PORT"))
+    

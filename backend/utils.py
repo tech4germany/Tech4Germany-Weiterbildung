@@ -18,7 +18,7 @@ def load_jobs_data(file_name):
     """
     embeddings = []
     entities = []
-    with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), file_name), 'r') as infile:
+    with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), file_name), 'r', encoding="utf-8") as infile:
         data = csv.reader(infile, delimiter=',')
         for line in data:
             # a line in the csv file contains the entity followed by the embedding feature vector
