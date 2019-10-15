@@ -41,7 +41,7 @@ export class Option extends React.Component {
 				return sentence;
 			}
 			else {
-				return sentence.length > 200 ? (sentence.slice(0,200) + '...') : sentence;
+				return string.length > 200 ? (string.slice(0,200) + '...') : string;
 			}
 		} 
 	}
