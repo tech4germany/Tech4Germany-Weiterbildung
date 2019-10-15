@@ -1,9 +1,11 @@
 from bson import json_util
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
+
 from flask import Flask, render_template, request
 from flask_caching import Cache
 from flask_cors import CORS
+
 import json
 import os
 from pymongo import MongoClient
@@ -18,19 +20,26 @@ CORS(application)
 cache = Cache(application, config={'CACHE_TYPE': 'simple'})
 cache.init_app(application)
 
-"""
-Lists all existing courses
-"""
 @application.route("/courses/all", methods=['GET'])
 @cache.cached(timeout=50)
 def list_all_courses():
+    """
+    List all existing courses
+    
+    Returns:
+        [type] -- [description]
+    """
+    # connect to database
+    connection_string = os.getenv("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
+    mongo_client = MongoClient(connection_string)
     courses_collection = list(mongo_client.test.courses.find({}))
     return json.dumps(courses_collection, default=json_util.default)
 
 @application.route("/courses/all/<int:limit>", methods=['GET'])
 @cache.cached(timeout=50)
 def list_courses(limit):
-    """Lists all existing courses with a given limit
+    """
+    List all existing courses with a given limit
     
     Arguments:
         limit {int} -- amount of shown courses
@@ -38,13 +47,17 @@ def list_courses(limit):
     Returns:
         JSON -- the first {limit} courses
     """
+    # connect to database
+    connection_string = os.getenv("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
+    mongo_client = MongoClient(connection_string)
     courses_collection = list(mongo_client.test.courses.find({}).limit(limit))
     return json.dumps(courses_collection, default=json_util.default)
 
 @application.route("/courses/filter/<title>", methods=['GET'])
 @cache.cached(timeout=50)
 def find_all_courses_with_title(title):
-    """Lists all existing courses matching a given title 
+    """
+    List all existing courses matching a given title 
     
     Arguments:
         title {String} -- the search title
@@ -52,13 +65,17 @@ def find_all_courses_with_title(title):
     Returns:
         JSON -- courses matching a given title
     """
+    # connect to database
+    connection_string = os.getenv("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
+    mongo_client = MongoClient(connection_string)
     courses_collection = list(mongo_client.test.courses.find({ 'title': { '$regex': re.compile(f'.*{title}.*', re.IGNORECASE) }}))
     return json.dumps(courses_collection, default=json_util.default)
 
 @application.route("/courses/filter/<title>/<int:limit>", methods=['GET'])
 @cache.cached(timeout=50)
 def find_courses(title, limit):
-    """Lists all existing courses with a given title and a specifc limit
+    """
+    List all existing courses with a given title and a specifc limit
     
     Arguments:
         title {String} -- course title
@@ -67,12 +84,16 @@ def find_courses(title, limit):
     Returns:
         JSON -- a given amount of courses matching the given title
     """
+    # connect to database
+    connection_string = os.getenv("DATABASE_URL")
+    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
     courses_collection = list(mongo_client.test.courses.find({ 'title': { '$regex': f'.*{title}.*' }}).limit(limit))
     return json.dumps(courses_collection, default=json_util.default)
 
 @application.route("/courses/find/<id>", methods=['GET'])
 def find_course(id):
-    """Finds a specific course that matches the given id
+    """
+    Find a specific course that matches the given id
     
     Arguments:
         id {String} -- course id in the database
@@ -80,17 +101,24 @@ def find_course(id):
     Returns:
         JSON -- the matching course
     """
+    # connect to database
+    connection_string = os.getenv("DATABASE_URL")
+    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
     course = mongo_client.test.courses.find_one({'_id': ObjectId(id)})
     return json.dumps(course, default=json_util.default)
 
 @application.route("/select", methods=['POST'])
 def set_option():
-    """Select an option (either category or job) and generate two new job options
+    """
+    Select an option (either category or job) and generate two new job options
     
     Returns:
         JSON -- a session including two generated options
     """
     _uuid = request.get_json('uuid')['uuid']
+    # connect to database
+    connection_string = os.getenv("DATABASE_URL")
+    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
     session = mongo_client.test.sessions.find_one({'uuid': uuid.UUID(_uuid).hex})
     if request.get_json('option_type')['option_type'] == "Berufe":
         # store selected job option and send the session information with generated options
@@ -140,13 +168,17 @@ def set_option():
 
 @application.route("/init", methods=['GET'])
 def init_session():
-    """Initialize a session
+    """
+    Initialize a session
     
     Returns:
         JSON -- a generate session containing a UUID and the different categories
     """
     session = {}
     session['uuid'] = uuid.uuid4().hex
+    # connect to database
+    connection_string = os.getenv("DATABASE_URL")
+    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
     options = utils.load_categories(mongo_client.test)
     option_objects = []
     for option in options:
@@ -162,13 +194,18 @@ def init_session():
 
 @application.route("/like", methods=['POST'])
 def like_item():
-    """Like an item (job or course)
+    """
+    Like an item (job or course)
     
     Returns:
         int -- status code
     """
     _uuid = request.get_json('uuid')['uuid']
     title = request.get_json('options')['options']
+
+    # connect to database
+    connection_string = os.getenv("DATABASE_URL")
+    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
     session = mongo_client.test.sessions.find_one({"uuid": _uuid})
 
     # add liked course
@@ -185,43 +222,47 @@ def like_item():
 
 @application.route("/courses/add", methods=['POST'])
 def add_course():
-    """[summary]
+    """
+    Add a course
     
     Returns:
-        [type] -- [description]
+        int -- status code
     """
     course = {}
     course['title'] = request.get_json('title')['title']
     course['info'] = request.get_json('info')['info']
-    # TODO add all required fields
-
+    # TODO are additional fields required?
+    # connect to database
+    connection_string = os.getenv("DATABASE_URL")
+    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
     result = mongo_client.test.courses.insert_one(course)
     return 200 if not application.debug else result
 
 @application.route("/courses/delete", methods=['POST'])
 def delete_course():
-    """[summary]
+    """
+    Delete a course
     
     Returns:
-        [type] -- [description]
+        JSON -- status code
     """
     # NOTE that deleting only according to the title might not be save
     # TODO use multiple identifers
+    # connect to database
+    connection_string = os.getenv("DATABASE_URL")
+    mongo_client = MongoClient("mongodb://manuel:bmas2019@ec2-54-93-78-155.eu-central-1.compute.amazonaws.com/test")
     result = mongo_client.test.courses.delete_one({"title": request.get_json('title')['title']})
     return 200 if not application.debug else result
 
 if __name__ == "__main__":
+
     # load environment variables
-    env_path = os.path.join(os.path.dirname(__file__), '../.env')
+    env_path = os.path.join(os.path.dirname(__file__), '.env')
     load_dotenv(dotenv_path=env_path)
 
-    # connect to database
-    connection_string = os.getenv("DATABASE_URL")
-    mongo_client = MongoClient(connection_string)
-
     # load embeddings and entities
-    job_entities, job_embeddings = utils.load_jobs_data('../data/job_embeddings.csv')
-    dist_matrix = utils.load_dists('../data/jobs_cosine_distances.csv')
+    job_entities, job_embeddings = utils.load_jobs_data('./data/job_embeddings.csv')
+    dist_matrix = utils.load_dists('./data/jobs_cosine_distances.csv')
 
     # start application
     # NOTE not to use debug mode in production
