@@ -109,7 +109,7 @@ export class Pablov extends React.Component {
 						/>
 					)}
 				</Grid>
-				{this.hasMultiOptions() && <Submit onClick={this.sendSelections}/>}
+				{this.hasMultiOptions() && this.state.selected.length > 0 && <Submit onClick={this.sendSelections}/>}
 				<JobResults 
 					jobs={this.state.jobs} 
 					counter={this.state.jobsCounter}
