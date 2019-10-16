@@ -199,6 +199,7 @@ def get_category_infos(database, title):
     Returns:
         String -- category information 
     """
+    print(title)
     try:
         category = database.categories.find_one({"category_name": title})
         return category['info'], category['_id']

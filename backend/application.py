@@ -105,6 +105,7 @@ def set_option():
     if request.get_json('option_type')['option_type'] == "Beruf":
         # store selected job option and send the session information with generated options
         option = request.get_json('options')['options'][0]
+        option['id'] = ObjectId(option['id']['$oid'])
         session['selected'].append(option['title'])
         session['options'].remove(option)
 
