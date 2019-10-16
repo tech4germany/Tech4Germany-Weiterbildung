@@ -154,8 +154,9 @@ def get_options(database, entities, embeddings, selected, not_selected, neighbor
 
     # calculate the distances of all embeddings to the averaged point
     dists = []
+    seed = np.random.randint(3) # random seed to make all jobs are regarded
     for i in range(len(embeddings)):
-        if i % 3 == 0:
+        if (seed + i) % 3 == 0:
             dists.append(spatial.distance.cosine(np.array(embeddings[i]), avg_selected))
         else:
             dists.append(2)
