@@ -102,7 +102,7 @@ def set_option():
     """
     _uuid = request.get_json('uuid')['uuid']
     session = mongo_client.test.sessions.find_one({'uuid': uuid.UUID(_uuid).hex})
-    if request.get_json('option_type')['option_type'] == "Berufe":
+    if request.get_json('option_type')['option_type'] == "Beruf":
         # store selected job option and send the session information with generated options
         option = request.get_json('options')['options'][0]
         session['selected'].append(option['title'])
@@ -126,7 +126,7 @@ def set_option():
         mongo_client.test.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
         return json.dumps(session, default=json_util.default)
 
-    elif request.get_json('option_type')['option_type'] == "Branchen":
+    elif request.get_json('option_type')['option_type'] == "Branche":
         # store selected categories and send the session with initial options
         categories = request.get_json('options')['options']
         start_jobs_titles = []
@@ -144,11 +144,11 @@ def set_option():
             option_objects.append(option_object)
 
         session['options'] = option_objects
-        session['option_type'] = "Berufe"
+        session['option_type'] = "Beruf"
         mongo_client.test.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
         return json.dumps(session, default=json_util.default)
     else:
-        return "Invalid option type, please use either 'Berufe' or 'Branchen'", 406
+        return "Invalid option type, please use either 'Beruf' or 'Branche'", 406
 
 @application.route("/init", methods=['GET'])
 def init_session():
@@ -169,7 +169,7 @@ def init_session():
             option_objects.append(option_object)
 
     session['options'] = option_objects
-    session['option_type'] = "Branchen"
+    session['option_type'] = "Branche"
     session['fav_jobs'] = session['fav_courses'] = session['selected'] = session['not_selected'] = []
     mongo_client.test.sessions.insert_one(session)
     return json.dumps(session, default=json_util.default)
@@ -187,11 +187,11 @@ def like_item():
     session = mongo_client.test.sessions.find_one({"uuid": _uuid})
 
     # add liked course
-    if request.get_json('option_type')['option_type'] == "Kurse":
+    if request.get_json('option_type')['option_type'] == "Kurs":
         session['fav_courses'].append(title['title'])
     
     # add liked job
-    elif request.get_json('option_type')['option_type'] == "Berufe":
+    elif request.get_json('option_type')['option_type'] == "Beruf":
         session['fav_jobs'].append(title['title'])
 
     # update session
@@ -211,12 +211,12 @@ def unlike_item():
     session = mongo_client.test.sessions.find_one({"uuid": _uuid})
 
     # remove unliked course
-    if request.get_json('option_type')['option_type'] == "Kurse":
+    if request.get_json('option_type')['option_type'] == "Kurs":
         if title in session['fav_courses']:
             session['fav_courses'].remove(title['title'])
     
     # remove unliked job
-    elif request.get_json('option_type')['option_type'] == "Berufe":
+    elif request.get_json('option_type')['option_type'] == "Beruf":
         if title in session['fav_jobs']:
             session['fav_jobs'].remove(title['title'])
 
@@ -269,4 +269,3 @@ if __name__ == "__main__":
     # start application
     # NOTE not to use debug mode in production
     application.run(debug=True, host="0.0.0.0", port=os.environ.get("BACKEND_PORT"))
-    
