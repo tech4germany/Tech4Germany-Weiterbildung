@@ -6,8 +6,6 @@ export class Submit extends React.Component {
 		this.props.onClick();
 	}
 
-	//hi
-
 	render() {
 		return(
 			<Button 
