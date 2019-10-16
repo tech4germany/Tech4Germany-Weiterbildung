@@ -12,7 +12,7 @@ export class Pablov extends React.Component {
 		this.state = {
 			uuid: '',
 			options: [], //['Wirtschaft, Verwaltung', 'Gesundheit', 'Kunst, Kultur, Gestaltung', 'Landwirtschaft, Natur', 'Metall, Maschinenbau', 'IT, Computer', 'Naturwissenschaften', 'Malen nach Zahlen'],
-			optionsType : 'Branchen',
+			optionsType : 'Branche',
 			selected: [],
 			jobs: [],
 			jobsCounter: 0,
