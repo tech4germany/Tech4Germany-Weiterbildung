@@ -1,4 +1,5 @@
 from bson import json_util
+from bson.objectid import ObjectId
 import csv
 import json
 import numpy as np
@@ -73,7 +74,7 @@ def load_related_job(database, job_id):
     """
     return database.jobs.find_one({'job_id': job_id})
 
-def load_init_options(dist_matrix, entities, selected_titles):
+def load_init_options(database, dist_matrix, entities, selected_titles):
     """
     Load the initial options after select one or more categories
     
@@ -103,6 +104,7 @@ def load_init_options(dist_matrix, entities, selected_titles):
         # suggest one job within a rather close distance each for both of the given embeddings
         options = [entities[_find_close_point(dist_matrix, entities, origin)] for origin in selected_titles]
 
+    options = [database.jobs.find_one({'title' : option})['_id'] for option in options]
     return options
 
 def _find_close_point(dist_matrix, entities, selected_title, neighborhood_size = 100, skip_range = 1):
@@ -121,7 +123,7 @@ def _find_close_point(dist_matrix, entities, selected_title, neighborhood_size =
     neighbors = np.argpartition(dists, neighborhood_size)[skip_range:neighborhood_size]
     return np.random.choice(neighbors, 1)[0]
 
-def get_options(entities, embeddings, selected, not_selected, neighborhood_size = 100, num_pts = 2, skip_range = 10, num_jobs = 5):
+def get_options(database, entities, embeddings, selected, not_selected, neighborhood_size = 100, num_pts = 2, skip_range = 10, num_jobs = 5):
     """
     Get two k-nearest neighbors of all selected entities
     
@@ -140,6 +142,8 @@ def get_options(entities, embeddings, selected, not_selected, neighborhood_size 
     Returns:
         list<String>, list<String> -- suggested options and jobs
     """
+    selected = [database.jobs.find_one({"_id": ObjectId(x)})['title'] for x in selected]
+    not_selected = [database.jobs.find_one({"_id": ObjectId(x)})['title'] for x in not_selected]
     selected_indices = [entities.index(x) for x in selected]
     selected_features = [embeddings[x] for x in selected_indices]
     not_selected_indices = [entities.index(x) for x in not_selected]
@@ -153,25 +157,24 @@ def get_options(entities, embeddings, selected, not_selected, neighborhood_size 
 
     # calculate the distances of all embeddings to the averaged point
     dists = []
-    start = time.time()
     for i in range(len(embeddings)):
         if i % 3 == 0:
             dists.append(spatial.distance.cosine(np.array(embeddings[i]), avg_selected))
         else:
             dists.append(2)
-    end = time.time()
-    print(f'Time for calculating pairwise distance {end - start} s.')
+
     jobs = [entities[x] for x in np.argpartition(dists, num_jobs)[:num_jobs]]
     try:
         neighbors = np.argpartition(dists, neighborhood_size)[skip_range:neighborhood_size]
         rel_neighbors = [x for x in neighbors if x not in selected_indices and x not in not_selected_indices]
         neighbors = list(np.random.choice(rel_neighbors, num_pts, replace=False))
         options = [entities[x] for x in neighbors]
+        options = [database.jobs.find_one({'title' : option})['_id'] for option in options]
         return options, jobs
     except: # no more possible options
         return [], jobs
 
-def get_job_infos(database, title):
+def get_job_infos(database, id):
     """
     Get the information details for a given job title
     
@@ -182,9 +185,11 @@ def get_job_infos(database, title):
     Returns:
         String -- [description]
     """
+    print(id)
+    print(type(id))
     try:
-        job = database.jobs.find_one({"title": title})
-        return job['info'], job['_id']
+        job = database.jobs.find_one({"_id": ObjectId(id)})
+        return job['title'], job['info']
     except:
         return ""
 
@@ -199,7 +204,6 @@ def get_category_infos(database, title):
     Returns:
         String -- category information 
     """
-    print(title)
     try:
         category = database.categories.find_one({"category_name": title})
         return category['info'], category['_id']

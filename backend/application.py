@@ -105,20 +105,19 @@ def set_option():
     if request.get_json('option_type')['option_type'] == "Beruf":
         # store selected job option and send the session information with generated options
         option = request.get_json('options')['options'][0]
-        option['id'] = ObjectId(option['id']['$oid'])
-        session['selected'].append(option['title'])
-        session['options'].remove(option)
+        session['selected'].append(option)
+        session['options'] = [x for x in session['options'] if x['id'] != ObjectId(option)]
 
         for val in session['options']:
             session['options'].remove(val)
-            session['not_selected'].append(val['title'])
+            session['not_selected'].append(val['id'])
 
-        options, session['jobs'] = utils.get_options(job_entities, job_embeddings, session['selected'], session['not_selected'])
+        options, session['jobs'] = utils.get_options(mongo_client.test, job_entities, job_embeddings, session['selected'], session['not_selected'])
         option_objects = []
         for option in options:
             option_object = {}
-            option_object['title'] = option
-            option_object['info'], option_object['id'] = utils.get_job_infos(mongo_client.test, option)
+            option_object['id'] = option
+            option_object['title'], option_object['info'] = utils.get_job_infos(mongo_client.test, option)
             option_objects.append(option_object)
 
         session['options'] = option_objects
@@ -129,19 +128,19 @@ def set_option():
 
     elif request.get_json('option_type')['option_type'] == "Branche":
         # store selected categories and send the session with initial options
-        categories = request.get_json('options')['options']
+        category_ids = request.get_json('options')['options']
         start_jobs_titles = []
-        for category in categories:
-            job_id = mongo_client.test.categories.find_one({"category_name": category['title']})['job_id']
+        for category_id in category_ids:
+            job_id = mongo_client.test.categories.find_one({"_id": ObjectId(category_id)})['job_id']
             related_job = utils.load_related_job(mongo_client.test ,job_id)
             start_jobs_titles.append(related_job['title'])
 
-        options = utils.load_init_options(dist_matrix, job_entities, start_jobs_titles)
+        options = utils.load_init_options(mongo_client.test, dist_matrix, job_entities, start_jobs_titles)
         option_objects = []
         for option in options:
             option_object = {}
-            option_object['title'] = option
-            option_object['info'], option_object['id'] = utils.get_job_infos(mongo_client.test, option)
+            option_object['id'] = option
+            option_object['title'], option_object['info'] = utils.get_job_infos(mongo_client.test, option)
             option_objects.append(option_object)
 
         session['options'] = option_objects
