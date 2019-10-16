@@ -1,0 +1,23 @@
+\title{Technischer Bericht \\ Tech4Germany}
+
+\documentclass[12pt]{article}
+\usepackage[ngerman]{babel}
+\usepackage[margin=1in]{geometry}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This is the paper's abstract \ldots
+\end{abstract}
+
+\section{Ähnlichkeit von Berufen}
+
+Die Bundesagentur für Arbeit stellt in ihrem Portal BERUFENET Definitionen von Berufen zur Verfügung. Um eine Ähnlichkeit zwischen diesen zu ermitteln, muss die textuelle Form in einen Merkmals-Vektor überführt werden, der genauere Informationen zu den einzelnen Berufen liefert. Zwar könnte man die Levenshtein-Distanz \footnote{vgl. http://www.levenshtein.de} verwenden, allerdings verwendet diese keinerlei Informationen über die eigentlichen Berufsinhalte.\\
+
+ Anhand der Berufs-Bezeichnungen können durch vortrainierte Modelle wie bspw. Word2Vec \footnote{vgl. https://code.google.com/archive/p/word2vec/} oder GloVe \footnote{vgl. https://nlp.stanford.edu/projects/glove/} bereits Merkmals-Vektoren erzeugt werden. Diese Modelle erstellen Merkmals-Vektoren anhand von Attributen, die anhand von verschiedenen Korpussen wie bspw. den Wikipedia-Daten gelernt wurden. Auch wir haben diese Verfahren verwendet um Merkmale für Berufe zu generieren, allerdings verfügen diese über keine kontextuellen Informationen zu einem Beruf, d.h. die Tätigkeiten sowie verschiedene Berufsbeschreibungen bleiben unberücksichtigt. Ein anderer Nachteil dieser Verfahrer ist, dass ein Merkmals-Vektor stets nur für ein einzelnes Wort generiert werden kann. Auch wenn die Vektoren über verschiedene Wörter gemittelt werden können, gehen sehr viele Informationen verloren.\\
+
+Um zusätzliche Informationen zu generieren, haben wir deshalb die Tätigkeitsbeschreibungen analysiert. Dabei lässt sich mit einem Bag-of-Words Ansatz ein Korpus generieren, der alle relevanten Wörter durch Verwendung eines Stemmers in ihrer Rohform beinhaltet. Zu Beachten ist dabei, dass häufige Wörter rausgefiltert werden müssen, um die Relevanz der einzelnen Merkmale nicht zu gefährden. So müssen Bindewörter und Pronomen extrahiert werden, wofür sich bspw. die Python-Bibliothek NLTK \footnote{vgl. https://www.nltk.org} sehr gut eignet. Nach der Erstellung des Korpuses können nun die Merkmals-Vektoren der einzelnen Berufe berechnet werden.
+
+
+\end{document}
