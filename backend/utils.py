@@ -74,7 +74,7 @@ def load_related_job(database, job_id):
     """
     return database.jobs.find_one({'job_id': job_id})
 
-def load_init_options(database, dist_matrix, entities, selected_titles):
+def load_init_options(database, dist_matrix, entities, selected_ids):
     """
     Load the initial options after select one or more categories
     
@@ -86,28 +86,27 @@ def load_init_options(database, dist_matrix, entities, selected_titles):
     Returns:
         list<String> -- two initial titles
     """
-    if len(selected_titles) == 1:
+    if len(selected_ids) == 1:
         # suggest two jobs within a rather close distance to the given embedding
-        option_1 = _find_close_point(dist_matrix, entities, selected_titles[0])
-        option_2 = _find_close_point(dist_matrix, entities, selected_titles[0])
+        option_1 = _find_close_point(dist_matrix, entities, selected_ids[0])
+        option_2 = _find_close_point(dist_matrix, entities, selected_ids[0])
 
         # ensure that we select two different options
         while option_2 == option_1:
-            option_2 = _find_close_point(dist_matrix, entities, selected_titles[0])
+            option_2 = _find_close_point(dist_matrix, entities, selected_ids[0])
         options = [entities[option_1], entities[option_2]]
 
     else:
-        if len(selected_titles) > 2:
+        if len(selected_ids) > 2:
             # select two random samples
-            selected_titles = np.random.choice(selected_titles, 2, replace=False)
+            selected_ids = np.random.choice(selected_ids, 2, replace=False)
 
         # suggest one job within a rather close distance each for both of the given embeddings
-        options = [entities[_find_close_point(dist_matrix, entities, origin)] for origin in selected_titles]
+        options = [entities[_find_close_point(dist_matrix, entities, origin)] for origin in selected_ids]
 
-    options = [database.jobs.find_one({'title' : option})['_id'] for option in options]
     return options
 
-def _find_close_point(dist_matrix, entities, selected_title, neighborhood_size = 100, skip_range = 1):
+def _find_close_point(dist_matrix, entities, selected_id, neighborhood_size = 100, skip_range = 1):
     """
     Find a close point relativ to the given job title
     
@@ -119,7 +118,7 @@ def _find_close_point(dist_matrix, entities, selected_title, neighborhood_size =
     Returns:
         String -- one near point
     """
-    dists = dist_matrix[entities.index(selected_title)]
+    dists = dist_matrix[entities.index(str(selected_id))]
     neighbors = np.argpartition(dists, neighborhood_size)[skip_range:neighborhood_size]
     return np.random.choice(neighbors, 1)[0]
 
@@ -142,9 +141,10 @@ def get_options(database, entities, embeddings, selected, not_selected, neighbor
     Returns:
         list<String>, list<String> -- suggested options and jobs
     """
-    selected_indices = [entities.index(x) for x in selected]
+    print(selected)
+    selected_indices = [entities.index(str(x)) for x in selected]
     selected_features = [embeddings[x] for x in selected_indices]
-    not_selected_indices = [entities.index(x) for x in not_selected]
+    not_selected_indices = [entities.index(str(x)) for x in not_selected]
     sum_selected = np.zeros(len(selected_features[0]))
 
     # calculate the averaged point in the embedding space
@@ -182,11 +182,9 @@ def get_job_infos(database, id):
     Returns:
         String -- [description]
     """
-    print(id)
-    print(type(id))
     try:
         job = database.jobs.find_one({"_id": ObjectId(id)})
-        return job['title'], job['info']
+        return job['title'], job['info'], job['_id']
     except:
         return ""
 
