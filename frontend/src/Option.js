@@ -36,7 +36,15 @@ export class Option extends React.Component {
 			if(string.indexOf('.') !== -1) {
 				string = string.replace(/bzw\./, "beziehungsweise");
 				string = string.replace(/z\.B\./, "zum Beispiel");
-				var sentence = string.match(/[^\.!?]+[\.!?]+/)[0];
+				string = string.replace(/ggf\./, "gegebenenfalls");
+				string = string.replace(/v\.a\./, "vor allem");
+				var sentence = "";
+				if(string.match(/[^\.!?]+[\.!?]+/) === null) {
+					sentence = string;
+				}
+				else {
+					sentence = string.match(/[^\.!?]+[\.!?]+/)[0];
+				}
 				sentence = sentence.length > 200 ? (sentence.slice(0,200) + '...') : sentence;
 				return sentence;
 			}

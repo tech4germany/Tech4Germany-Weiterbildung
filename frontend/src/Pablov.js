@@ -102,9 +102,9 @@ export class Pablov extends React.Component {
 			<React.Fragment>
 				<Grid container spacing={2}  justify="center">
 					<Grid item xs={12}>
-						<Typography variant="h4" gutterBottom>
+						{this.state.options.length > 0 && <Typography variant="h4" gutterBottom>
 							Was interessiert Dich mehr?
-						</Typography>
+						</Typography>}
 					</Grid>
 					{this.state.options.map(option => 
 						<Option
