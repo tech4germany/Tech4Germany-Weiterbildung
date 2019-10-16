@@ -7,4 +7,5 @@ baems.pem
 .vscode/
 *.pem
 */__pycache__
-
+*/*.log
+*/*.aux
