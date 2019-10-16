@@ -72,6 +72,7 @@ export class Option extends React.Component {
 								title={this.props.title}
 								uuid={this.props.uuid}
 								type={this.props.type}
+								id={this.props.id}
 							/>
 			      </CardActions>
 			    }
