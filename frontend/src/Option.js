@@ -24,8 +24,8 @@ export class Option extends React.Component {
 	}
 
 	handleClick() {
-		const title = this.props.title;
-		this.props.onClick(title);
+		const id = this.props.id;
+		this.props.onClick(id);
 		this.setState({
 			selected: !this.state.selected
 		});
@@ -47,8 +47,7 @@ export class Option extends React.Component {
 	}
 
 	render() {
-		const title = this.props.title.title[0].toUpperCase() + this.props.title.title.slice(1)
-		const info = this.reduceToFirstSentence(this.props.title.info)
+		const info = this.reduceToFirstSentence(this.props.info)
 
 		return (
 			<Grid item xs={12} sm={6} md={this.props.gridM}>
@@ -59,7 +58,7 @@ export class Option extends React.Component {
 		          	{this.props.type}
 		        	</Typography>
 		        	<Typography variant="h4" component="h2" style={{ overflowWrap: 'break-word' }}>
-			          {title}
+			          {this.props.title}
 			        </Typography>
 			        <Typography variant="body2" component="p" style={{ marginTop: 10 }}>
 			          {info}

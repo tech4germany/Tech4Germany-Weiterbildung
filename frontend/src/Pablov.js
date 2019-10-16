@@ -33,27 +33,33 @@ export class Pablov extends React.Component {
 		));
 	}
 
-	selectOption(title) {
+	selectOption(id) {
+		console.log(id);
 		if (this.hasMultiOptions()) {
-			if (!this.state.selected.includes(title)) {
+			if (!this.state.selected.includes(id)) {
 				this.setState({
-					selected: this.state.selected.concat(title)
+					selected: this.state.selected.concat(id)
 				});
 			}
 			else {
 				this.setState({
 					selected: this.state.selected.filter(function(option) {
-						return option !== title
+						return option !== id
 					})
 				});
 			}
 		} else {
-			this.sendSelections([title]);
+			this.sendSelections([id]);
 		}
 	}
 
 	sendSelections(titles=this.state.selected) {
 		this.increaseJobsCounter();
+		console.log(JSON.stringify({
+				uuid: this.state.uuid,
+				options: titles,
+				option_type: this.state.optionsType
+			}));
 		fetch(new URL('select', process.env.REACT_APP_API_URL), {
 			method: 'POST',
 			body: JSON.stringify({
@@ -101,10 +107,12 @@ export class Pablov extends React.Component {
 							Was interessiert Dich mehr?
 						</Typography>
 					</Grid>
-					{this.state.options.map(title => 
+					{this.state.options.map(option => 
 						<Option
-							key={title.title}
-							title={title} 
+							key={option.id.$oid}
+							id={option.id.$oid}
+							title={option.title}
+							info={option.info} 
 							type={this.state.optionsType} 
 							gridM={gridM} 
 							onClick={this.selectOption}
@@ -116,7 +124,6 @@ export class Pablov extends React.Component {
 				<JobResults 
 					jobs={this.state.jobs} 
 					counter={this.state.jobsCounter}
-					likeHandler={this.like}
 				/>
 			</React.Fragment>
 		);
