@@ -66,14 +66,16 @@ export class Option extends React.Component {
 			        </Typography>
 			    	</CardContent>
 			    </CardActionArea>
-					<CardActions>
-						<LikeButton 
-							onClick={this.likeOption}
-							title={this.props.title}
-							uuid={this.props.uuid}
-							type={this.props.type}
-						/>
-		      </CardActions>
+			    {this.props.type === 'Berufe' && 
+						<CardActions>
+							<LikeButton 
+								onClick={this.likeOption}
+								title={this.props.title}
+								uuid={this.props.uuid}
+								type={this.props.type}
+							/>
+			      </CardActions>
+			    }
 				</Card>
 			</Grid>
 		);
