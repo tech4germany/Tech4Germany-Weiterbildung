@@ -30,7 +30,7 @@ export class LikeButton extends React.Component{
 			method: 'POST',
 			body: JSON.stringify({
 				uuid: this.props.uuid,
-				options: this.props.title,
+				options: this.props.id,
 				option_type: this.props.type
 			}),
 			headers: {
@@ -44,7 +44,7 @@ export class LikeButton extends React.Component{
 			method: 'POST',
 			body: JSON.stringify({
 				uuid: this.props.uuid,
-				options: this.props.title,
+				options: this.props.id,
 				option_type: this.props.type
 			}),
 			headers: {
@@ -57,7 +57,7 @@ export class LikeButton extends React.Component{
 		return(
 			<Button size="small" onClick={this.handleClick}>
 				{this.state.liked ? <StarIcon color={"primary"}/> : <StarBorderIcon/>} 
-				Merken
+				Merken {this.props.id}
 			</Button>
 		);
 	}

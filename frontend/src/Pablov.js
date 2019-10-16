@@ -34,7 +34,6 @@ export class Pablov extends React.Component {
 	}
 
 	selectOption(id) {
-		console.log(id);
 		if (this.hasMultiOptions()) {
 			if (!this.state.selected.includes(id)) {
 				this.setState({
