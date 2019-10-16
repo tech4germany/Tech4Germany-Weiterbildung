@@ -171,7 +171,7 @@ def get_options(entities, embeddings, selected, not_selected, neighborhood_size 
     except: # no more possible options
         return [], jobs
 
-def get_job_info(database, title):
+def get_job_infos(database, title):
     """
     Get the information details for a given job title
     
@@ -184,11 +184,11 @@ def get_job_info(database, title):
     """
     try:
         job = database.jobs.find_one({"title": title})
-        return job['info']
+        return job['info'], job['_id']
     except:
         return ""
 
-def get_category_info(database, title):
+def get_category_infos(database, title):
     """
     Get the information details for a given job title
     
@@ -201,6 +201,6 @@ def get_category_info(database, title):
     """
     try:
         category = database.categories.find_one({"category_name": title})
-        return category['info']
+        return category['info'], category['_id']
     except:
         return ""

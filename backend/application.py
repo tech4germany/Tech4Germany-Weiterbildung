@@ -117,7 +117,7 @@ def set_option():
         for option in options:
             option_object = {}
             option_object['title'] = option
-            option_object['info'] = utils.get_job_info(mongo_client.test, option)
+            option_object['info'], option_object['id'] = utils.get_job_infos(mongo_client.test, option)
             option_objects.append(option_object)
 
         session['options'] = option_objects
@@ -140,7 +140,7 @@ def set_option():
         for option in options:
             option_object = {}
             option_object['title'] = option
-            option_object['info'] = utils.get_job_info(mongo_client.test, option)
+            option_object['info'], option_object['id'] = utils.get_job_infos(mongo_client.test, option)
             option_objects.append(option_object)
 
         session['options'] = option_objects
@@ -165,7 +165,7 @@ def init_session():
     for option in options:
             option_object = {}
             option_object['title'] = option
-            option_object['info'] = utils.get_category_info(mongo_client.test, option)
+            option_object['info'], option['id'] = utils.get_category_infos(mongo_client.test, option)
             option_objects.append(option_object)
 
     session['options'] = option_objects
