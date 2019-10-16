@@ -35,11 +35,14 @@ export class JobResults extends React.Component {
 					</Typography>
 					<List dense={true} component="nav" aria-label="main mailbox folders">
 						{this.props.jobs.map(job => 
-							<ListItem key={job} button>
-			          <ListItemText primary={<Typography variant="body1">{job}</Typography>}/>
+							<ListItem key={job.id} button>
+			          <ListItemText primary={<Typography variant="body1">{job.title}</Typography>}/>
 			          <LikeButton 
-			          	onClick={this.props.likeHandler}
-			          	id={job.id}
+						  onClick={this.props.likeHandler}
+						  uuid={this.props.uuid}
+						  id={job.id}
+						  selected={this.props.fav_jobs.indexOf(job.id) !== -1}
+						  type={this.props.type}
 			          />
 			        </ListItem>
 						)}

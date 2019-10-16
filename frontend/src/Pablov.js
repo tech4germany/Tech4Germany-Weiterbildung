@@ -48,22 +48,21 @@ export class Pablov extends React.Component {
 				});
 			}
 		} else {
-			this.sendSelections([id]);
+			this.setState({
+				selected: [id]
+			}, () => {
+				this.sendSelections();
+			});
 		}
 	}
 
-	sendSelections(titles=this.state.selected) {
+	sendSelections() {
 		this.increaseJobsCounter();
-		console.log(JSON.stringify({
-				uuid: this.state.uuid,
-				options: titles,
-				option_type: this.state.optionsType
-			}));
 		fetch(new URL('select', process.env.REACT_APP_API_URL), {
 			method: 'POST',
 			body: JSON.stringify({
 				uuid: this.state.uuid,
-				options: titles,
+				options: this.state.selected,
 				option_type: this.state.optionsType
 			}),
 			headers: {
@@ -75,6 +74,7 @@ export class Pablov extends React.Component {
 			options: data.options,
 			jobs: data.jobs,
 			optionsType: data.option_type,
+			fav_jobs: data.fav_jobs,
 			// shows jobs after response:
 			jobsCounter: this.state.jobsCounter > 3 ? 5 : this.state.jobsCounter 
 		})));
@@ -123,6 +123,9 @@ export class Pablov extends React.Component {
 				<JobResults 
 					jobs={this.state.jobs} 
 					counter={this.state.jobsCounter}
+					fav_jobs={this.state.fav_jobs}
+					uuid={this.state.uuid}
+					type={this.state.optionsType}
 				/>
 			</React.Fragment>
 		);

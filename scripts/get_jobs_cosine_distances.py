@@ -16,4 +16,4 @@ def export_cosine_distances(input_file, output_file):
                 
 
 if __name__ == "__main__":
-    export_cosine_distances("./job_embeddings.csv", "../backend/data/jobs_cosine_distances.csv")
+    export_cosine_distances("../backend/data/job_embeddings.csv", "../backend/data/jobs_cosine_distances.csv")

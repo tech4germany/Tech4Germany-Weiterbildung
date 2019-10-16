@@ -141,7 +141,6 @@ def get_options(database, entities, embeddings, selected, not_selected, neighbor
     Returns:
         list<String>, list<String> -- suggested options and jobs
     """
-    print(selected)
     selected_indices = [entities.index(str(x)) for x in selected]
     selected_features = [embeddings[x] for x in selected_indices]
     not_selected_indices = [entities.index(str(x)) for x in not_selected]
@@ -161,7 +160,14 @@ def get_options(database, entities, embeddings, selected, not_selected, neighbor
         else:
             dists.append(2)
 
-    jobs = [entities[x] for x in np.argpartition(dists, num_jobs)[:num_jobs]]
+    job_ids = [entities[x] for x in np.argpartition(dists, num_jobs)[:num_jobs]]
+    jobs = []
+    for job_id in job_ids:
+        job = {}
+        job['id'] = job_id
+        job['title'] = database.jobs.find_one({"_id": ObjectId(job_id)})['title']
+        jobs.append(job)
+
     try:
         neighbors = np.argpartition(dists, neighborhood_size)[skip_range:neighborhood_size]
         rel_neighbors = [x for x in neighbors if x not in selected_indices and x not in not_selected_indices]

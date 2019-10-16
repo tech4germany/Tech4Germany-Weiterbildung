@@ -105,14 +105,12 @@ def set_option():
     if request.get_json('option_type')['option_type'] == "Beruf":
         # store selected job option and send the session information with generated options
         option = request.get_json('options')['options'][0]
-        print(option)
         session['selected'].append(option)
         session['options'] = [x for x in session['options'] if x['id'] != ObjectId(option)]
 
         for val in session['options']:
             session['options'].remove(val)
             session['not_selected'].append(val['id'])
-        print(session)
         options, session['jobs'] = utils.get_options(mongo_client.test, job_entities, job_embeddings, session['selected'], session['not_selected'])
         option_objects = []
         for option in options:
@@ -123,7 +121,6 @@ def set_option():
 
         session['options'] = option_objects
         session['final'] =  0 if len(session['options']) > 0 else 1
-
         mongo_client.test.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
         return json.dumps(session, default=json_util.default)
 

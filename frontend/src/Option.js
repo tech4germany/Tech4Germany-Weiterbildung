@@ -33,7 +33,7 @@ export class Option extends React.Component {
 
 	reduceToFirstSentence(string) {
 		if (string.length > 0) {
-			if(string.indexOf('.') != -1) {
+			if(string.indexOf('.') !== -1) {
 				string = string.replace(/bzw\./, "beziehungsweise");
 				string = string.replace(/z\.B\./, "zum Beispiel");
 				var sentence = string.match(/[^\.!?]+[\.!?]+/)[0];

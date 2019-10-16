@@ -23,12 +23,14 @@ def build_corpus():
     size = jobs.count()
     stemmer = Cistem()
     corpus = []
-    titles = []
+    ids = []
     for i, job in enumerate(jobs):
         if i % 1000 == 0: print(f'{i}/{size}')
         indices = []
-        title = job['title'].replace(',','')
-        titles.append(title)
+        print(job['_id'])
+        title = job['title']
+        _id = job['_id']
+        ids.append(_id)
         text = job['detailed_activities'].strip()
         text = ' '.join(text.split())
         for index in range(len(text)):
@@ -48,17 +50,17 @@ def build_corpus():
                 words.append(stemmed_word)
 
         corpus.append(' '.join(words))
-    return corpus, titles
+    return corpus, ids
 
 if __name__ == "__main__":
-    corpus, titles = build_corpus()
+    corpus, ids = build_corpus()
     vectorizer = TfidfVectorizer(max_features=10000)
     X = vectorizer.fit_transform(corpus)
 
     with open('job_features.csv', 'w+') as outf:
-        for feature_vec, title in zip(X, titles):
+        for feature_vec, _id in zip(X, ids):
             feature_vec = [str(x) for x in feature_vec.toarray().flatten()]
             
-            outf.write(f'{title},{",".join(feature_vec)}\n')
+            outf.write(f'{_id},{",".join(feature_vec)}\n')
     with open('job_feature_map.txt', "w+") as outfeat:
         outfeat.write(" ".join(vectorizer.get_feature_names()))

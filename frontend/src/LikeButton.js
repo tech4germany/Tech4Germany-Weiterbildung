@@ -8,7 +8,7 @@ export class LikeButton extends React.Component{
 	constructor(props) {
 		super(props);
 		this.state = {
-			liked: false
+			liked: props.selected ? props.selected : false
 		};
 		this.handleClick = this.handleClick.bind(this);
 	}
@@ -57,7 +57,7 @@ export class LikeButton extends React.Component{
 		return(
 			<Button size="small" onClick={this.handleClick}>
 				{this.state.liked ? <StarIcon color={"primary"}/> : <StarBorderIcon/>} 
-				Merken {this.props.id}
+				Merken
 			</Button>
 		);
 	}
