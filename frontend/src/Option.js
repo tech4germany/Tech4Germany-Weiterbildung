@@ -34,16 +34,16 @@ export class Option extends React.Component {
 	reduceToFirstSentence(string) {
 		if (string.length > 0) {
 			if(string.indexOf('.') !== -1) {
-				string = string.replace(/bzw\./, "beziehungsweise");
-				string = string.replace(/z\.B\./, "zum Beispiel");
-				string = string.replace(/ggf\./, "gegebenenfalls");
-				string = string.replace(/v\.a\./, "vor allem");
+				string = string.replace(/bzw./, "beziehungsweise");
+				string = string.replace(/z.B./, "zum Beispiel");
+				string = string.replace(/ggf./, "gegebenenfalls");
+				string = string.replace(/v.a./, "vor allem");
 				var sentence = "";
-				if(string.match(/[^\.!?]+[\.!?]+/) === null) {
+				if(string.match(/[^.!?]+[.!?]+/) === null) {
 					sentence = string;
 				}
 				else {
-					sentence = string.match(/[^\.!?]+[\.!?]+/)[0];
+					sentence = string.match(/[^.!?]+[.!?]+/)[0];
 				}
 				sentence = sentence.length > 200 ? (sentence.slice(0,200) + '...') : sentence;
 				return sentence;

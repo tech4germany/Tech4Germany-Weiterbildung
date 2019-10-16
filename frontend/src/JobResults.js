@@ -6,7 +6,6 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import StarIcon from '@material-ui/icons/Star';
 
 export class JobResults extends React.Component {
 	hasJobs() {
