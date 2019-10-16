@@ -66,7 +66,7 @@ export class Option extends React.Component {
 			        </Typography>
 			    	</CardContent>
 			    </CardActionArea>
-			    {this.props.type === 'Berufe' && 
+			    {this.props.type === 'Beruf' && 
 						<CardActions>
 							<LikeButton 
 								onClick={this.likeOption}

@@ -15,7 +15,8 @@ export class Pablov extends React.Component {
 			optionsType : 'Branchen',
 			selected: [],
 			jobs: [],
-			jobsCounter: 0
+			jobsCounter: 0,
+			liked: []
 		};
 		this.selectOption = this.selectOption.bind(this);
 		this.sendSelections = this.sendSelections.bind(this);
@@ -26,7 +27,8 @@ export class Pablov extends React.Component {
 		.then((data => this.setState({
 				uuid: data.uuid,
 				options: data.options,
-				optionsType: data.option_type
+				optionsType: data.option_type,
+				liked: data.fav_jobs
 			})
 		));
 	}
