@@ -68,7 +68,8 @@ export class Pablov extends React.Component {
 			options: data.options,
 			jobs: data.jobs,
 			optionsType: data.option_type,
-			jobsCounter: this.state.jobsCounter > 3 ? 5 : this.state.jobsCounter
+			// shows jobs after response:
+			jobsCounter: this.state.jobsCounter > 3 ? 5 : this.state.jobsCounter 
 		})));
 
 	}
