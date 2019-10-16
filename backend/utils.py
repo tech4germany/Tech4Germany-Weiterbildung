@@ -142,8 +142,6 @@ def get_options(database, entities, embeddings, selected, not_selected, neighbor
     Returns:
         list<String>, list<String> -- suggested options and jobs
     """
-    selected = [database.jobs.find_one({"_id": ObjectId(x)})['title'] for x in selected]
-    not_selected = [database.jobs.find_one({"_id": ObjectId(x)})['title'] for x in not_selected]
     selected_indices = [entities.index(x) for x in selected]
     selected_features = [embeddings[x] for x in selected_indices]
     not_selected_indices = [entities.index(x) for x in not_selected]
@@ -169,7 +167,6 @@ def get_options(database, entities, embeddings, selected, not_selected, neighbor
         rel_neighbors = [x for x in neighbors if x not in selected_indices and x not in not_selected_indices]
         neighbors = list(np.random.choice(rel_neighbors, num_pts, replace=False))
         options = [entities[x] for x in neighbors]
-        options = [database.jobs.find_one({'title' : option})['_id'] for option in options]
         return options, jobs
     except: # no more possible options
         return [], jobs
