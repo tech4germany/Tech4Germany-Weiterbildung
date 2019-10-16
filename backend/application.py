@@ -183,16 +183,16 @@ def like_item():
         int -- status code
     """
     _uuid = request.get_json('uuid')['uuid']
-    title = request.get_json('options')['options']
+    _id = request.get_json('options')['options']
     session = mongo_client.test.sessions.find_one({"uuid": _uuid})
 
     # add liked course
     if request.get_json('option_type')['option_type'] == "Kurs":
-        session['fav_courses'].append(title['title'])
+        session['fav_courses'].append(_id)
     
     # add liked job
     elif request.get_json('option_type')['option_type'] == "Beruf":
-        session['fav_jobs'].append(title['title'])
+        session['fav_jobs'].append(_id)
 
     # update session
     mongo_client.test.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
@@ -207,18 +207,18 @@ def unlike_item():
         int -- status code
     """
     _uuid = request.get_json('uuid')['uuid']
-    title = request.get_json('options')['options']
+    _id = request.get_json('options')['options']
     session = mongo_client.test.sessions.find_one({"uuid": _uuid})
 
     # remove unliked course
     if request.get_json('option_type')['option_type'] == "Kurs":
-        if title in session['fav_courses']:
-            session['fav_courses'].remove(title['title'])
+        if _id in session['fav_courses']:
+            session['fav_courses'].remove(_id)
     
     # remove unliked job
     elif request.get_json('option_type')['option_type'] == "Beruf":
-        if title in session['fav_jobs']:
-            session['fav_jobs'].remove(title['title'])
+        if _id in session['fav_jobs']:
+            session['fav_jobs'].remove(_id)
 
     # update session
     mongo_client.test.sessions.update_one({'uuid': uuid.UUID(_uuid).hex}, {'$set': session})
