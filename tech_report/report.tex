@@ -7,13 +7,32 @@
 \begin{document}
 \maketitle
 
-\begin{abstract}
-Zusammenfassung \ldots
-\end{abstract}
-
 \section{Einleitung}
 
+Dieses Dokument gibt einen Kurz-Überblick über die technischen Bedingungen
+dieses Projekts. Dabei werden die technologischen Überlegungen angerissen. Bei
+Rückfragen wenden Sie sich bitte an Manuel Lang und/oder Florian Zechmeister.
+Insbesondere wird in diesem Dokument auf den vorgesehenen Datenbestand sowie
+auf die Orientierung, die technisch wesentlich komplexer als die vorhergesene
+gefilterte Suche ist und auch im implementierten Prototyp exemplarisch gezeigt
+wird, eingegangen.
+
 \section{Datenbestand}
+
+Weiterbildungsangebote sollen in die Anwendung integriert werden können. Dabei
+ist vorgesehen, dass diese von verschiedenen Beteiligten sowie über verschiedene
+Wege hinzugefügt werden können. Bei den Beteiligten kann es sich um all
+diejenigen handeln, die Interesse haben Angebote einzustellen, bspw.
+Kursanbieter, Bildungsträger oder Plattformanbieter. Dabei ist im aktuellen
+Stand eine Schnittstelle vorgesehen, sodass existierende Angebote ohne
+zusätzliche Komplexität integriert werden. Zusätzlich ist im Frontend ein
+Formular vorgesehen, sodass einzelne Weiterbildungsangebote auch ohne die
+Schnittstelle direkt anzusprechen direkt integriert werden können. Eine
+Authentifizierung ist bisher noch nicht implementiert, wird aber auf jeden Fall
+benötigt, um eine Zertifizierung der Angebote sicherzustellen. Neben den
+Weiterbildungsangeboten werden zur Orientierung auch Berufs-Beschreibungen
+benötigt, die entweder aus aktuellen Berufs-Definitionen (z.B. KURSNET), aus
+User-Generated Content oder aus Stellenausschreibungen extrahiert werden können.
 
 \section{Orientierung}
 
@@ -39,22 +58,20 @@ Die Bundesagentur für Arbeit stellt in ihrem Portal BERUFENET Definitionen von
 Berufen zur Verfügung. Um eine Ähnlichkeit zwischen diesen zu ermitteln, muss
 die textuelle Form in einen Merkmals-Vektor überführt werden, der genauere
 Informationen zu den einzelnen Berufen liefert. Zwar könnte man die
-Levenshtein-Distanz\footnote{vgl. http://www.levenshtein.de} verwenden,
-allerdings verwendet diese keinerlei Informationen über die eigentlichen
-Berufsinhalte.\\
+Levenshtein-Distanz verwenden, allerdings verwendet diese keinerlei
+Informationen über die eigentlichen Berufsinhalte.\\
 
  Anhand der Berufs-Bezeichnungen können durch vortrainierte Modelle wie bspw.
- Word2Vec\footnote{vgl. https://code.google.com/archive/p/word2vec/} oder
- GloVe\footnote{vgl. https://nlp.stanford.edu/projects/glove/} bereits
- Merkmals-Vektoren erzeugt werden. Diese Modelle erstellen Merkmals-Vektoren
- anhand von Attributen, die anhand von verschiedenen Korpussen wie bspw. den
- Wikipedia-Daten gelernt wurden. Auch wir haben diese Verfahren verwendet um
- Merkmale für Berufe zu generieren, allerdings verfügen diese über keine
- kontextuellen Informationen zu einem Beruf, d.h. die Tätigkeiten sowie
- verschiedene Berufsbeschreibungen bleiben unberücksichtigt. Ein anderer
- Nachteil dieser Verfahrer ist, dass ein Merkmals-Vektor stets nur für ein
- einzelnes Wort generiert werden kann. Auch wenn die Vektoren über verschiedene
- Wörter gemittelt werden können, gehen sehr viele Informationen verloren.\\
+ Word2Vec oder GloVe bereits Merkmals-Vektoren erzeugt werden. Diese Modelle
+ erstellen Merkmals-Vektoren anhand von Attributen, die anhand von verschiedenen
+ Korpussen wie bspw. den Wikipedia-Daten gelernt wurden. Auch wir haben diese
+ Verfahren verwendet um Merkmale für Berufe zu generieren, allerdings verfügen
+ diese über keine kontextuellen Informationen zu einem Beruf, d.h. die
+ Tätigkeiten sowie verschiedene Berufsbeschreibungen bleiben unberücksichtigt.
+ Ein anderer Nachteil dieser Verfahrer ist, dass ein Merkmals-Vektor stets nur
+ für ein einzelnes Wort generiert werden kann. Auch wenn die Vektoren über
+ verschiedene Wörter gemittelt werden können, gehen sehr viele Informationen
+ verloren.\\
 
 Um zusätzliche Informationen zu generieren, haben wir deshalb die
 Tätigkeitsbeschreibungen analysiert. Dabei lässt sich mit einem Bag-of-Words
@@ -62,11 +79,11 @@ Ansatz ein Korpus generieren, der alle relevanten Wörter durch Verwendung eines
 Stemmers in ihrer Rohform beinhaltet. Zu Beachten ist dabei, dass häufige Wörter
 rausgefiltert werden müssen, um die Relevanz der einzelnen Merkmale nicht zu
 gefährden. So müssen Bindewörter und Pronomen extrahiert werden, wofür sich
-bspw. die Python-Bibliothek NLTK\footnote{vgl. https://www.nltk.org} sehr gut
-eignet. Nach der Erstellung des Korpuses können nun die Merkmals-Vektoren der
-einzelnen Berufe berechnet werden. Dazu kann ein TfidfVectorizer bspw. von
-Scikit Learn\footnote{vgl.} verwendet werden, der die relative Häufigkeit der
-gestemmten Wörter innerhalb einer Tätigkeitsbeschreibung betrachtet.\\
+bspw. die Python-Bibliothek NLTK sehr gut eignet. Nach der Erstellung des
+Korpuses können nun die Merkmals-Vektoren der einzelnen Berufe berechnet werden.
+Dazu kann ein TfidfVectorizer bspw. von Scikit Learn verwendet werden, der die
+relative Häufigkeit der gestemmten Wörter innerhalb einer Tätigkeitsbeschreibung
+betrachtet.\\
 
 So können Merkmals-Vektoren für Berufts-Tätigkeiten bestimmt werden, die sehr
 hochdimensional sind. Da auch die meisten Tätigkeitsbeschreibungen nur einen
@@ -78,10 +95,8 @@ dem Pfad zwischen $p$ und $q$ den räumlichen Winkel zwischen diesen betrachtet.
 Um diese Merkmals-Repräsentation greifbar zu machen, eignen sich verschiedene
 Algorithmen, die die Dimensionalität des Merkmals-Raums reduzieren. In unserer
 beispielhaften Implementierung haben wir T-distributed Stochastic Neighbor
-Embedding\footnote{vgl.
-https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html}
-verwendet, da dieses Verfahren eine ansprechende Visualisierung als bspw. eine
-PCA oder eine LDA liefern.\\
+Embedding verwendet, da dieses Verfahren eine ansprechende Visualisierung als
+bspw. eine PCA oder eine LDA liefern.\\
 
 Damit die Distanzen nicht zur Laufzeit bestimmt werden müssen, exportieren wir
 eine Distanzmatrix, die die paarweise Distanz zweier Embeddings speichert. So
