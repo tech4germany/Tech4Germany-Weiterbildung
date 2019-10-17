@@ -13,23 +13,23 @@ Dieses Dokument gibt einen Kurz-Überblick über die technischen Bedingungen
 dieses Projekts. Dabei werden die technologischen Überlegungen angerissen. Bei
 Rückfragen wenden Sie sich bitte an Manuel Lang und/oder Florian Zechmeister.
 Insbesondere wird in diesem Dokument auf den vorgesehenen Datenbestand sowie
-auf die Orientierung, die technisch wesentlich komplexer als die vorhergesene
-gefilterte Suche ist und auch im implementierten Prototyp exemplarisch gezeigt
+auf die Orientierung, die technisch wesentlich komplexer als die gefilterte 
+Suche ist und auch im implementierten Prototyp exemplarisch gezeigt
 wird, eingegangen.
 
 \section{Datenbestand}
 
 Weiterbildungsangebote sollen in die Anwendung integriert werden können. Dabei
-ist vorgesehen, dass diese von verschiedenen Beteiligten sowie über verschiedene
-Wege hinzugefügt werden können. Bei den Beteiligten kann es sich um all
-diejenigen handeln, die Interesse haben Angebote einzustellen, bspw.
+ist vorgesehen, dass diese sowohl von verschiedenen Beteiligten als auch über 
+verschiedene Wege hinzugefügt werden können. Bei den Beteiligten kann es sich 
+um all diejenigen handeln, die Interesse haben Angebote einzustellen, bspw.
 Kursanbieter, Bildungsträger oder Plattformanbieter. Dabei ist im aktuellen
 Stand eine Schnittstelle vorgesehen, sodass existierende Angebote ohne
-zusätzliche Komplexität integriert werden. Zusätzlich ist im Frontend ein
-Formular vorgesehen, sodass einzelne Weiterbildungsangebote auch ohne die
-Schnittstelle direkt anzusprechen direkt integriert werden können. Eine
-Authentifizierung ist bisher noch nicht implementiert, wird aber auf jeden Fall
-benötigt, um eine Zertifizierung der Angebote sicherzustellen. Neben den
+zusätzliche Komplexität integriert werden können. Zusätzlich ist im Frontend ein
+Formular vorgesehen, sodass einzelne Weiterbildungsangebote, auch ohne die
+Schnittstelle direkt anzusprechen, direkt integriert werden können. Eine
+Authentifizierung ist bisher noch nicht implementiert, wird aber benötigt, 
+um eine Richtigkeit der Angebote sicherzustellen. Neben den
 Weiterbildungsangeboten werden zur Orientierung auch Berufs-Beschreibungen
 benötigt, die entweder aus aktuellen Berufs-Definitionen (z.B. KURSNET), aus
 User-Generated Content oder aus Stellenausschreibungen extrahiert werden können.
@@ -38,19 +38,18 @@ User-Generated Content oder aus Stellenausschreibungen extrahiert werden können
 
 Die gezeige Anwendung beinhaltet verschiedene Aspekte zur Orientierung von
 Nutzer*innen. Insbesondere ist diese Funktionalität für unsere ermittelten
-Personas der ambitionierten Aufsteigerin und des unsicheren Umsteigers
-hilfreich. Da allerdings diese Personas verschiedene Ziele verfolgen, haben wir
-dies auch in der Anwendung berücksichtigt. So kann sich die ambitionierte
-Aufsteigerin nach Angabe ihres aktuellen Tätigkeitsfelds innerhalb eines Raumes
-Kurse, die nahe an ihrer derzeitigen Position liegen, explorieren. Der unsichere
-Umsteiger dagegen kann ohne Vorgabe der aktuellen Tätigkeit, sondern
-ausschließlich basierend auf einer Vorauswahl an Branchen, verschiedene Berufe
-explorieren. Diese Auftrennung ist sinnvoll, da sich die Aufsteigerin innerhalb
-eines gegebenen Feldes weiterbilden möchte, wobei der Umsteiger verschiedene
-Bereiche erkunden möchte. Diese Erkenntnisse stammen aus unseren Interviews mit
-Nutzer*innen. Im Folgenden wird die räumliche Exploration des Umsteigers
-eingegangen, wobei zunächst ein Ähnlichkeitsmaß für Berufe definiert werden
-muss.
+Personas der Ambitionierten Aufsteigerin und des Unsicheren Umsteigers
+hilfreich. Da diese Personas verschiedene Ziele verfolgen, haben wir dies 
+auch in der Anwendung berücksichtigt. So kann die Ambitionierte Aufsteigerin 
+nach Angabe ihres aktuellen Tätigkeitsfelds Kurse, die nahe an ihrer 
+derzeitigen Position liegen, erkunden. Der Unsichere Umsteiger dagegen kann 
+ohne Vorgabe der aktuellen Tätigkeit, sondern basierend auf einer Vorauswahl 
+an Branchen, verschiedene Berufe erkunden. Diese Auftrennung ist sinnvoll, 
+da sich die Aufsteigerin innerhalb eines gegebenen Feldes weiterbilden 
+möchte, wobei der Umsteiger verschiedene Bereiche erkunden möchte. Diese 
+Erkenntnisse stammen aus unseren Interviews mit Nutzer*innen. Im Folgenden 
+wird auf die räumliche Erkundung des Umsteigers eingegangen, wobei zunächst 
+ein Ähnlichkeitsmaß für Berufe definiert werden muss.
 
 \subsection{Ähnlichkeit von Berufen}
 
@@ -62,30 +61,30 @@ Levenshtein-Distanz verwenden, allerdings verwendet diese keinerlei
 Informationen über die eigentlichen Berufsinhalte.\\
 
  Anhand der Berufs-Bezeichnungen können durch vortrainierte Modelle wie bspw.
- Word2Vec oder GloVe bereits Merkmals-Vektoren erzeugt werden. Diese Modelle
- erstellen Merkmals-Vektoren anhand von Attributen, die anhand von verschiedenen
- Korpussen wie bspw. den Wikipedia-Daten gelernt wurden. Auch wir haben diese
+ GloVe Merkmals-Vektoren erzeugt werden. Diese Modelle erstellen 
+ Merkmals-Vektoren anhand von Attributen, die mittels verschiedener
+ Korpusse wie bspw. den Wikipedia-Daten gelernt wurden. Auch wir haben diese
  Verfahren verwendet um Merkmale für Berufe zu generieren, allerdings verfügen
  diese über keine kontextuellen Informationen zu einem Beruf, d.h. die
  Tätigkeiten sowie verschiedene Berufsbeschreibungen bleiben unberücksichtigt.
- Ein anderer Nachteil dieser Verfahrer ist, dass ein Merkmals-Vektor stets nur
+ Ein anderer Nachteil dieser Verfahren ist, dass ein Merkmals-Vektor stets nur
  für ein einzelnes Wort generiert werden kann. Auch wenn die Vektoren über
- verschiedene Wörter gemittelt werden können, gehen sehr viele Informationen
- verloren.\\
+ verschiedene Wörter gemittelt werden können, gehen so sehr viele 
+ Informationen verloren.\\
 
 Um zusätzliche Informationen zu generieren, haben wir deshalb die
 Tätigkeitsbeschreibungen analysiert. Dabei lässt sich mit einem Bag-of-Words
 Ansatz ein Korpus generieren, der alle relevanten Wörter durch Verwendung eines
-Stemmers in ihrer Rohform beinhaltet. Zu Beachten ist dabei, dass häufige Wörter
+Stemmers in ihrer Rohform beinhaltet. Zu Beachten ist, dass häufige Wörter
 rausgefiltert werden müssen, um die Relevanz der einzelnen Merkmale nicht zu
 gefährden. So müssen Bindewörter und Pronomen extrahiert werden, wofür sich
-bspw. die Python-Bibliothek NLTK sehr gut eignet. Nach der Erstellung des
-Korpuses können nun die Merkmals-Vektoren der einzelnen Berufe berechnet werden.
+bspw. die Python-Bibliothek NLTK eignet. Nach der Erstellung des Korpuses 
+können nun die Merkmals-Vektoren der einzelnen Berufe berechnet werden.
 Dazu kann ein TfidfVectorizer bspw. von Scikit Learn verwendet werden, der die
 relative Häufigkeit der gestemmten Wörter innerhalb einer Tätigkeitsbeschreibung
 betrachtet.\\
 
-So können Merkmals-Vektoren für Berufts-Tätigkeiten bestimmt werden, die sehr
+So können Merkmals-Vektoren für Berufs-Tätigkeiten bestimmt werden, die sehr
 hochdimensional sind. Da auch die meisten Tätigkeitsbeschreibungen nur einen
 Bruchteil des Korpuses abdecken, eignet sich die euklidische Distanz ($d_e(p,q)
 = \sqrt{\sum_{i=1}^n (p-q)^2}$) nicht, um Ähnlichkeiten (bzw. Distanzen)
@@ -95,12 +94,12 @@ dem Pfad zwischen $p$ und $q$ den räumlichen Winkel zwischen diesen betrachtet.
 Um diese Merkmals-Repräsentation greifbar zu machen, eignen sich verschiedene
 Algorithmen, die die Dimensionalität des Merkmals-Raums reduzieren. In unserer
 beispielhaften Implementierung haben wir T-distributed Stochastic Neighbor
-Embedding verwendet, da dieses Verfahren eine ansprechende Visualisierung als
-bspw. eine PCA oder eine LDA liefern.\\
+Embedding verwendet, da dieses Verfahren eine ansprechendere Visualisierung als
+bspw. eine PCA oder eine LDA lieferte.\\
 
 Damit die Distanzen nicht zur Laufzeit bestimmt werden müssen, exportieren wir
 eine Distanzmatrix, die die paarweise Distanz zweier Embeddings speichert. So
-kann diese Matrix beim Starten der Anwendung geladen werden und so direkt auf
+kann diese Matrix beim Starten der Anwendung geladen werden und direkt auf
 `dist\_matrix[i][:]' zugegriffen werden, um die paarweisen Distanzen des
 Embeddings $i$ zu den anderen Embeddings zu bestimmen. Mit diesen Distanzen kann
 nun innerhalb des hochdimensionalen Raumes navigiert werden.
@@ -113,9 +112,9 @@ exemplarisch die gegebenen Branchen repräsentieren, geladen werden. Über diese
 wird dann der Durchschnitts-Vektor berechnet, um einen Start-Punkt im Raum zu
 generieren. Für diesen Start-Punkt können nun die Nachbarn berechnet werden,
 indem die Kosinus-Distanz zwischen dem gemittelten Vektor und den Embeddings der
-einzelnen Berufe berechnet wird. Um eine performente Anwendung zu generieren,
+einzelnen Berufe berechnet wird. Um eine performante Anwendung zu generieren,
 ist die Berechnung der Distanz nicht zwischen allen Paaren zu empfehlen, weshalb
-durch die Auswahl jedes bspw. fünften Berufes eine zufällige Komponente in die
+durch die Auswahl jedes fünften Berufes eine zufällige Komponente in die
 Auswahl der Optionsvorschläge integriert wird und gleichzeitig die Ladezeit der
 Anwendung stark reduziert wird. Die resultierenden Berufsvorschläge innerhalb
 der Optionen sollten erneut stark zufällig gewählt werden, um eine flexible
