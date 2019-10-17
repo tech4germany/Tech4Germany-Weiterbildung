@@ -238,7 +238,7 @@ def add_course():
     result = mongo_client.test.courses.insert_one(course)
     return 200 if not application.debug else result
 
-@application.route("/courses/delete", methods=['POST'])
+@application.route("/courses/delete", methods=['DELETE'])
 def delete_course():
     """
     Delete a course
